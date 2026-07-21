@@ -10,6 +10,9 @@
     "test": "playwright test",
     "test:api": "playwright test --project=api",
     "test:ui": "playwright test --project=ui",
+    "test:p0": "playwright test --grep @p0",
+    "test:p0:api": "playwright test --project=api --grep @p0",
+    "test:p0:ui": "playwright test --project=ui --grep @p0",
     "test:report": "playwright show-report",
     "test:headed": "playwright test --project=ui --headed"
   },

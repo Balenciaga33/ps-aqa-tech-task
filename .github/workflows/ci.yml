@@ -153,7 +153,12 @@ jobs:
           BASE_URL: http://localhost:4444
           API_URL: http://localhost:4444
           MAILHOG_URL: http://localhost:8025
-        run: npm run test:api
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            npm run test:p0:api
+          else
+            npm run test:api
+          fi
 
       - name: Run UI tests
         working-directory: automation
@@ -162,7 +167,12 @@ jobs:
           BASE_URL: http://localhost:4444
           API_URL: http://localhost:4444
           MAILHOG_URL: http://localhost:8025
-        run: npm run test:ui
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            npm run test:p0:ui
+          else
+            npm run test:ui
+          fi
 
       - name: Upload Playwright report
         if: always()

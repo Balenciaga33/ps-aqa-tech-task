@@ -72,6 +72,7 @@ API + UI automation lives in [`automation/`](automation/) (Playwright + TypeScri
 - How to install/run: [`automation/README.md`](automation/README.md)
 - Priorities & scope: [`automation/docs/TEST-PLAN.md`](automation/docs/TEST-PLAN.md)
 - Spec vs actual behavior: [`automation/docs/FINDINGS.md`](automation/docs/FINDINGS.md)
-- CI evidence: [Actions runs](https://github.com/Balenciaga33/ps-aqa-tech-task/actions/workflows/ci.yml) (PHPUnit gate → Playwright API → UI; HTML report artifact)
+- Engineering decisions: [`automation/docs/DECISIONS.md`](automation/docs/DECISIONS.md)
+- CI evidence: [Actions runs](https://github.com/Balenciaga33/ps-aqa-tech-task/actions/workflows/ci.yml) (PHPUnit gate → Playwright; P0 on PR, full on `main`)
 
 ## Good luck!

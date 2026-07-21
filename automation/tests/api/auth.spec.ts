@@ -2,7 +2,7 @@ import { test, expect, annotateKnownIssue } from '../../src/fixtures/test.fixtur
 import { defaultPassword, uniqueEmail } from '../../src/helpers/data.factory';
 
 test.describe('API Auth', () => {
-  test('signup sends confirmation email and confirm returns JWT', async ({
+  test('signup sends confirmation email and confirm returns JWT', { tag: '@p0' }, async ({
     authClient,
     mailhog,
   }) => {
@@ -29,7 +29,10 @@ test.describe('API Auth', () => {
     expect((await me.json()).email).toBe(email);
   });
 
-  test('signin returns JWT for verified user', async ({ authClient, registeredUser }) => {
+  test('signin returns JWT for verified user', { tag: '@p0' }, async ({
+    authClient,
+    registeredUser,
+  }) => {
     const signinResponse = await authClient.signin({
       email: registeredUser.email,
       password: registeredUser.password,
@@ -39,7 +42,10 @@ test.describe('API Auth', () => {
     expect(body.token).toEqual(expect.any(String));
   });
 
-  test('signin rejects invalid credentials', async ({ authClient, registeredUser }) => {
+  test('signin rejects invalid credentials', { tag: '@p0' }, async ({
+    authClient,
+    registeredUser,
+  }) => {
     const response = await authClient.signin({
       email: registeredUser.email,
       password: 'WrongPass1!',
@@ -47,7 +53,7 @@ test.describe('API Auth', () => {
     expect(response.status()).toBe(401);
   });
 
-  test('signin rejects unverified user', async ({ authClient, authHelper }) => {
+  test('signin rejects unverified user', { tag: '@p0' }, async ({ authClient, authHelper }) => {
     const pending = await authHelper.signupOnly();
     const response = await authClient.signin({
       email: pending.email,
@@ -56,7 +62,7 @@ test.describe('API Auth', () => {
     expect(response.status()).toBe(401);
   });
 
-  test('GET /me returns profile with valid token and 401 without token', async ({
+  test('GET /me returns profile with valid token and 401 without token', { tag: '@p0' }, async ({
     authClient,
     registeredUser,
   }) => {
@@ -70,7 +76,9 @@ test.describe('API Auth', () => {
     expect(unauthorized.status()).toBe(401);
   });
 
-  test('signup validation rejects invalid email and short password', async ({ authClient }) => {
+  test('signup validation rejects invalid email and short password', { tag: '@p1' }, async ({
+    authClient,
+  }) => {
     const badEmail = await authClient.signup({ email: 'not-an-email', password: defaultPassword() });
     expect(badEmail.status()).toBe(400);
     expect((await badEmail.json()).error).toMatch(/email/i);
@@ -83,7 +91,10 @@ test.describe('API Auth', () => {
     expect((await shortPassword.json()).error).toMatch(/password/i);
   });
 
-  test('signup rejects already verified user', async ({ authClient, registeredUser }) => {
+  test('signup rejects already verified user', { tag: '@p0' }, async ({
+    authClient,
+    registeredUser,
+  }) => {
     const response = await authClient.signup({
       email: registeredUser.email,
       password: registeredUser.password,
@@ -92,14 +103,17 @@ test.describe('API Auth', () => {
     expect((await response.json()).error).toBe('User already exists.');
   });
 
-  test('confirm rejects invalid code', async ({ authClient, authHelper }) => {
+  test('confirm rejects invalid code', { tag: '@p0' }, async ({ authClient, authHelper }) => {
     const pending = await authHelper.signupOnly();
     const response = await authClient.confirm(pending.email, '000000');
     expect(response.status()).toBe(400);
     expect((await response.json()).error).toMatch(/invalid or expired/i);
   });
 
-  test('confirm rejects reused confirmation code', async ({ authClient, mailhog }) => {
+  test('confirm rejects reused confirmation code', { tag: '@p1' }, async ({
+    authClient,
+    mailhog,
+  }) => {
     const email = uniqueEmail('reuse');
     const password = defaultPassword();
     expect((await authClient.signup({ email, password })).status()).toBe(201);

@@ -2,7 +2,7 @@ import { test, expect, annotateKnownIssue } from '../../src/fixtures/test.fixtur
 import { notePayload } from '../../src/helpers/data.factory';
 
 test.describe('UI Notes pagination', () => {
-  test('splits notes across pages and exposes known counter/next issues', async ({
+  test('splits notes across pages and exposes known counter/next issues', { tag: '@p1' }, async ({
     app,
     page,
     notesClient,
@@ -29,7 +29,6 @@ test.describe('UI Notes pagination', () => {
     await app.setPageSize('5');
 
     await expect(page.locator('.note-item')).toHaveCount(5);
-    // Actual UI behavior under FINDINGS #5 — counter reflects current page size/heuristic
     await expect(app.listTotal()).toContainText(/notes/i);
     await expect(app.nextPageButton()).toBeEnabled();
 
@@ -38,7 +37,7 @@ test.describe('UI Notes pagination', () => {
     await expect(app.pageInfo()).toContainText(/Page 2/i);
   });
 
-  test('exact page-size multiple can open an empty next page (known issue)', async ({
+  test('exact page-size multiple can open an empty next page (known issue)', { tag: '@p1' }, async ({
     app,
     page,
     notesClient,

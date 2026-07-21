@@ -2,7 +2,10 @@ import { test, expect, annotateKnownIssue } from '../../src/fixtures/test.fixtur
 import { notePayload } from '../../src/helpers/data.factory';
 
 test.describe('API Notes', () => {
-  test('CRUD lifecycle for authenticated user', async ({ notesClient, registeredUser }) => {
+  test('CRUD lifecycle for authenticated user', { tag: '@p0' }, async ({
+    notesClient,
+    registeredUser,
+  }) => {
     annotateKnownIssue(3, 'PUT resets created_at (immutability not asserted)');
     const payload = notePayload();
 
@@ -29,7 +32,6 @@ test.describe('API Notes', () => {
     const updated = await updateResponse.json();
     expect(updated.title).toBe(updatedPayload.title);
     expect(updated.content).toBe(updatedPayload.content);
-    // Intentionally not asserting created_at stability — see FINDINGS.md #3
 
     const deleteResponse = await notesClient.delete(registeredUser.token, created.id);
     expect([200, 204]).toContain(deleteResponse.status());
@@ -38,7 +40,10 @@ test.describe('API Notes', () => {
     expect(missing.status()).toBe(404);
   });
 
-  test('list supports search and pagination', async ({ notesClient, registeredUser }) => {
+  test('list supports search and pagination', { tag: '@p1' }, async ({
+    notesClient,
+    registeredUser,
+  }) => {
     annotateKnownIssue(4, 'list returns bare JSON array without total metadata');
     const marker = `search-${Date.now()}`;
 
@@ -73,7 +78,7 @@ test.describe('API Notes', () => {
     expect(page2Members.map((note) => note.id)).not.toEqual(page1Members.map((note) => note.id));
   });
 
-  test('list supports sort by title', async ({ notesClient, registeredUser }) => {
+  test('list supports sort by title', { tag: '@p1' }, async ({ notesClient, registeredUser }) => {
     const prefix = `sort-${Date.now()}`;
     for (const title of [`${prefix}-c`, `${prefix}-a`, `${prefix}-b`]) {
       expect(
@@ -91,19 +96,26 @@ test.describe('API Notes', () => {
     expect(titles).toEqual([`${prefix}-a`, `${prefix}-b`, `${prefix}-c`]);
   });
 
-  test('notes endpoints require authentication', async ({ request }) => {
+  test('notes endpoints require authentication', { tag: '@p0' }, async ({ request }) => {
     annotateKnownIssue(2, 'unauthenticated notes calls return 401 not documented 403');
     expect((await request.get('/api/notes')).status()).toBe(401);
     expect((await request.post('/api/notes', { data: notePayload() })).status()).toBe(401);
     expect((await request.get('/api/notes/00000000-0000-4000-8000-000000000000')).status()).toBe(401);
   });
 
-  test('rejects empty title and content with 422', async ({ notesClient, registeredUser }) => {
+  test('rejects empty title and content with 422', { tag: '@p1' }, async ({
+    notesClient,
+    registeredUser,
+  }) => {
     const response = await notesClient.create(registeredUser.token, { title: '', content: '' });
     expect(response.status()).toBe(422);
   });
 
-  test('user cannot access another user notes', async ({ notesClient, authHelper, registeredUser }) => {
+  test('user cannot access another user notes', { tag: '@p0' }, async ({
+    notesClient,
+    authHelper,
+    registeredUser,
+  }) => {
     const stranger = await authHelper.registerVerifiedUser();
     const createResponse = await notesClient.create(
       registeredUser.token,

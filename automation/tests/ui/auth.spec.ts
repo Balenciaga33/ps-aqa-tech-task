@@ -2,7 +2,7 @@ import { test, expect } from '../../src/fixtures/test.fixtures';
 import { defaultPassword, uniqueEmail } from '../../src/helpers/data.factory';
 
 test.describe('UI Auth', () => {
-  test('sign up via UI, confirm via MailHog link, land in account', async ({
+  test('sign up via UI, confirm via MailHog link, land in account', { tag: '@p0' }, async ({
     app,
     page,
     mailhog,
@@ -20,7 +20,7 @@ test.describe('UI Auth', () => {
     await expect(app.status()).toContainText('Account confirmed');
   });
 
-  test('sign in shows notes and profile for verified user', async ({
+  test('sign in shows notes and profile for verified user', { tag: '@p0' }, async ({
     app,
     page,
     registeredUser,
@@ -37,14 +37,18 @@ test.describe('UI Auth', () => {
     await expect(page.locator('#profile-id')).not.toHaveText('-');
   });
 
-  test('sign in with wrong password shows error', async ({ app, page, registeredUser }) => {
+  test('sign in with wrong password shows error', { tag: '@p1' }, async ({
+    app,
+    page,
+    registeredUser,
+  }) => {
     await app.goto();
     await app.signIn(registeredUser.email, 'WrongPass1!');
     await expect(page.locator('#auth-section')).toBeVisible();
     await expect(app.status()).not.toHaveText('');
   });
 
-  test('API-authenticated session opens notes without UI login', async ({
+  test('API-authenticated session opens notes without UI login', { tag: '@p1' }, async ({
     app,
     registeredUser,
   }) => {

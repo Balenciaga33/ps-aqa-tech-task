@@ -7,6 +7,7 @@ Stack: **Playwright + TypeScript**.
 Related docs:
 - [Test plan](docs/TEST-PLAN.md)
 - [Findings](docs/FINDINGS.md)
+- [Decisions](docs/DECISIONS.md)
 
 ## Prerequisites
 
@@ -54,14 +55,27 @@ Environment variables (see `.env.example`):
 # All tests (API + UI)
 npm test
 
-# API only
+# API / UI only
 npm run test:api
-
-# UI only
 npm run test:ui
+
+# P0 blockers only (same filter used on pull_request CI)
+npm run test:p0
+npm run test:p0:api
+npm run test:p0:ui
 
 # Open HTML report
 npm run test:report
+```
+
+From the repository root (app must already be up):
+
+```sh
+make test-e2e   # full Playwright suite
+make test-api
+make test-ui
+make test-p0    # @p0 only
+make test       # PHPUnit smoke (product)
 ```
 
 ## Structure
@@ -107,8 +121,8 @@ GitHub Actions (`.github/workflows/ci.yml`) pipeline:
 1. **phpunit** — fast backend smoke (build image → migrate → PHPUnit)
 2. **playwright** — starts only if phpunit passed (`needs: phpunit`)
    - one shared App + MailHog stack
-   - `npm run test:api` first
-   - `npm run test:ui` next (skipped automatically if API step failed)
+   - on **pull_request**: `@p0` API then `@p0` UI (fast blocker signal)
+   - on **push to main**: full API then full UI
 
 Outdated runs on the same branch are cancelled via `concurrency`.
 
