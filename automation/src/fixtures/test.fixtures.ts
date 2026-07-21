@@ -4,7 +4,9 @@ import { MailhogClient } from '../clients/mailhog.client';
 import { NotesClient } from '../clients/notes.client';
 import { AuthHelper } from '../helpers/auth.helper';
 import type { TestUser } from '../types/api.types';
-import { AppPage } from '../pages/app.page';
+import { AuthPage } from '../pages/auth.page';
+import { NotesPage } from '../pages/notes.page';
+import { ProfilePage } from '../pages/profile.page';
 
 type Fixtures = {
   authClient: AuthClient;
@@ -12,7 +14,9 @@ type Fixtures = {
   notesClient: NotesClient;
   authHelper: AuthHelper;
   registeredUser: TestUser;
-  app: AppPage;
+  authPage: AuthPage;
+  notesPage: NotesPage;
+  profilePage: ProfilePage;
 };
 
 export const test = base.extend<Fixtures>({
@@ -36,8 +40,16 @@ export const test = base.extend<Fixtures>({
     await use(await authHelper.registerVerifiedUser());
   },
 
-  app: async ({ page }, use) => {
-    await use(new AppPage(page));
+  authPage: async ({ page }, use) => {
+    await use(new AuthPage(page));
+  },
+
+  notesPage: async ({ page }, use) => {
+    await use(new NotesPage(page));
+  },
+
+  profilePage: async ({ page }, use) => {
+    await use(new ProfilePage(page));
   },
 });
 

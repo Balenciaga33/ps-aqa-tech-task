@@ -8,6 +8,7 @@ Related docs:
 - [Test plan](docs/TEST-PLAN.md)
 - [Findings](docs/FINDINGS.md)
 - [Decisions](docs/DECISIONS.md)
+- [Contributing](CONTRIBUTING.md)
 
 ## Prerequisites
 
@@ -82,16 +83,22 @@ make test       # PHPUnit smoke (product)
 
 ```
 automation/
-  docs/               # Test plan + findings
+  docs/               # Test plan, findings, decisions
   src/
     clients/          # Auth, Notes, MailHog HTTP clients
-    fixtures/         # Playwright fixtures (registeredUser, clients, app)
+    fixtures/         # registeredUser, clients, page objects
     helpers/          # Auth bootstrap, unique test data
-    pages/            # UI page object
+    pages/
+      base.page.ts
+      auth.page.ts
+      notes.page.ts
+      profile.page.ts
+      components/     # Note update/delete modals
     types/            # Shared API types
   tests/
     api/              # API specs
     ui/               # UI E2E specs
+  CONTRIBUTING.md
   playwright.config.ts
 ```
 
@@ -109,7 +116,7 @@ Current suite focuses on **P0** and selected **P1**. **P2** is intentionally def
 
 - **Risk-based**: critical auth and notes flows first; no visual regression or full browser matrix (Chromium only).
 - **Independent tests**: unique email per run; no shared mutable fixtures between specs.
-- **Fixtures**: `registeredUser`, typed clients, `app` page object via `test.extend`.
+- **Fixtures**: `registeredUser`, typed clients, split page objects (`authPage`, `notesPage`, `profilePage`) via `test.extend`.
 - **API-first UI**: JWT injected into `localStorage`; notes seeded via API; browser used for the behavior under test; network waits via `waitForResponse`.
 - **Findings-aware**: assert actual behavior; document OpenAPI/UI mismatches in `docs/FINDINGS.md`.
 - **Healthy mode only**: tests assume `APP_MODE=healthy`.

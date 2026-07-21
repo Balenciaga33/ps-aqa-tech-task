@@ -3,7 +3,7 @@ import { notePayload } from '../../src/helpers/data.factory';
 
 test.describe('UI Notes pagination', () => {
   test('splits notes across pages and exposes known counter/next issues', { tag: '@p1' }, async ({
-    app,
+    notesPage,
     page,
     notesClient,
     registeredUser,
@@ -23,22 +23,22 @@ test.describe('UI Notes pagination', () => {
       ).toBe(201);
     }
 
-    await app.openAuthenticated(registeredUser.token);
-    await app.expectAuthenticated();
-    await app.searchNotes(prefix);
-    await app.setPageSize('5');
+    await notesPage.openAuthenticated(registeredUser.token);
+    await notesPage.expectAuthenticated();
+    await notesPage.searchNotes(prefix);
+    await notesPage.setPageSize('5');
 
     await expect(page.locator('.note-item')).toHaveCount(5);
-    await expect(app.listTotal()).toContainText(/notes/i);
-    await expect(app.nextPageButton()).toBeEnabled();
+    await expect(notesPage.listTotal()).toContainText(/notes/i);
+    await expect(notesPage.nextPageButton()).toBeEnabled();
 
-    await app.nextPage();
+    await notesPage.nextPage();
     await expect(page.locator('.note-item')).toHaveCount(2);
-    await expect(app.pageInfo()).toContainText(/Page 2/i);
+    await expect(notesPage.pageInfo()).toContainText(/Page 2/i);
   });
 
   test('exact page-size multiple can open an empty next page (known issue)', { tag: '@p1' }, async ({
-    app,
+    notesPage,
     page,
     notesClient,
     registeredUser,
@@ -57,13 +57,13 @@ test.describe('UI Notes pagination', () => {
       ).toBe(201);
     }
 
-    await app.openAuthenticated(registeredUser.token);
-    await app.searchNotes(prefix);
-    await app.setPageSize('5');
+    await notesPage.openAuthenticated(registeredUser.token);
+    await notesPage.searchNotes(prefix);
+    await notesPage.setPageSize('5');
     await expect(page.locator('.note-item')).toHaveCount(5);
-    await expect(app.nextPageButton()).toBeEnabled();
+    await expect(notesPage.nextPageButton()).toBeEnabled();
 
-    await app.nextPage();
+    await notesPage.nextPage();
     await expect(page.locator('.note-item')).toHaveCount(0);
     await expect(page.getByText('No notes found.')).toBeVisible();
   });

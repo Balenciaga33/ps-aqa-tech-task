@@ -2,47 +2,50 @@ import { test, expect } from '../../src/fixtures/test.fixtures';
 import { notePayload } from '../../src/helpers/data.factory';
 
 test.describe('UI Notes', () => {
-  test('create, edit and delete note from UI', { tag: '@p0' }, async ({ app, registeredUser }) => {
-    await app.openAuthenticated(registeredUser.token);
-    await app.expectAuthenticated();
+  test('create, edit and delete note from UI', { tag: '@p0' }, async ({
+    notesPage,
+    registeredUser,
+  }) => {
+    await notesPage.openAuthenticated(registeredUser.token);
+    await notesPage.expectAuthenticated();
 
     const created = notePayload({ title: `ui-create-${Date.now()}` });
     const updated = notePayload({ title: `ui-updated-${Date.now()}` });
 
-    const createResponse = await app.createNote(created.title, created.content);
+    const createResponse = await notesPage.createNote(created.title, created.content);
     expect(createResponse.status()).toBe(201);
-    await expect(app.status()).toContainText('Note created');
-    await expect(app.noteItem(created.title)).toBeVisible();
+    await expect(notesPage.status()).toContainText('Note created');
+    await expect(notesPage.noteItem(created.title)).toBeVisible();
 
-    const updateResponse = await app.editNote(created.title, updated.title, updated.content);
+    const updateResponse = await notesPage.editNote(created.title, updated.title, updated.content);
     expect(updateResponse.status()).toBe(200);
-    await expect(app.status()).toContainText('Note updated');
-    await expect(app.noteItem(updated.title)).toContainText(updated.content);
+    await expect(notesPage.status()).toContainText('Note updated');
+    await expect(notesPage.noteItem(updated.title)).toContainText(updated.content);
 
-    const deleteResponse = await app.deleteNote(updated.title);
+    const deleteResponse = await notesPage.deleteNote(updated.title);
     expect([200, 204]).toContain(deleteResponse.status());
-    await expect(app.status()).toContainText('Note deleted');
-    await expect(app.noteItem(updated.title)).toHaveCount(0);
+    await expect(notesPage.status()).toContainText('Note deleted');
+    await expect(notesPage.noteItem(updated.title)).toHaveCount(0);
   });
 
   test('cancel delete keeps the note', { tag: '@p1' }, async ({
-    app,
+    notesPage,
     notesClient,
     registeredUser,
   }) => {
     const payload = notePayload({ title: `keep-${Date.now()}` });
     expect((await notesClient.create(registeredUser.token, payload)).status()).toBe(201);
 
-    await app.openAuthenticated(registeredUser.token);
-    await app.expectAuthenticated();
-    await expect(app.noteItem(payload.title)).toBeVisible();
+    await notesPage.openAuthenticated(registeredUser.token);
+    await notesPage.expectAuthenticated();
+    await expect(notesPage.noteItem(payload.title)).toBeVisible();
 
-    await app.cancelDeleteNote(payload.title);
-    await expect(app.noteItem(payload.title)).toBeVisible();
+    await notesPage.cancelDeleteNote(payload.title);
+    await expect(notesPage.noteItem(payload.title)).toBeVisible();
   });
 
   test('search filters notes in the list', { tag: '@p1' }, async ({
-    app,
+    notesPage,
     page,
     notesClient,
     registeredUser,
@@ -60,16 +63,15 @@ test.describe('UI Notes', () => {
       ).status(),
     ).toBe(201);
 
-    await app.openAuthenticated(registeredUser.token);
-    await app.expectAuthenticated();
-    await app.searchNotes(marker);
-    await expect(app.noteItem(marker)).toBeVisible();
+    await notesPage.openAuthenticated(registeredUser.token);
+    await notesPage.expectAuthenticated();
+    await notesPage.searchNotes(marker);
+    await expect(notesPage.noteItem(marker)).toBeVisible();
     await expect(page.locator('.note-item')).toHaveCount(1);
   });
 
   test('sort by title A-Z updates the list order', { tag: '@p1' }, async ({
-    app,
-    page,
+    notesPage,
     notesClient,
     registeredUser,
   }) => {
@@ -80,12 +82,12 @@ test.describe('UI Notes', () => {
       ).toBe(201);
     }
 
-    await app.openAuthenticated(registeredUser.token);
-    await app.expectAuthenticated();
-    await app.searchNotes(prefix);
-    await app.setSort('title_asc');
+    await notesPage.openAuthenticated(registeredUser.token);
+    await notesPage.expectAuthenticated();
+    await notesPage.searchNotes(prefix);
+    await notesPage.setSort('title_asc');
 
-    const titles = await page.locator('.note-item h3').allTextContents();
+    const titles = await notesPage.noteTitles().allTextContents();
     expect(titles).toEqual([`${prefix}-a`, `${prefix}-b`, `${prefix}-c`]);
   });
 });
