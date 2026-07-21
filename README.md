@@ -70,8 +70,8 @@ This diagram can help you understand the main entities and interactions before t
 API + UI automation lives in [`automation/`](automation/) (Playwright + TypeScript).
 
 - How to install/run: [`automation/README.md`](automation/README.md)
-- Priorities & scope: [`docs/TEST-PLAN.md`](docs/TEST-PLAN.md)
-- Spec vs actual behavior: [`docs/FINDINGS.md`](docs/FINDINGS.md)
+- Priorities & scope: [`automation/docs/TEST-PLAN.md`](automation/docs/TEST-PLAN.md)
+- Spec vs actual behavior: [`automation/docs/FINDINGS.md`](automation/docs/FINDINGS.md)
 - CI evidence: [Actions runs](https://github.com/Balenciaga33/ps-aqa-tech-task/actions/workflows/ci.yml) (PHPUnit gate → Playwright API → UI; HTML report artifact)
 
 ## Good luck!

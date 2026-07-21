@@ -5,8 +5,8 @@ API and UI automated tests for the notes application.
 Stack: **Playwright + TypeScript**.
 
 Related docs:
-- [Test plan](../docs/TEST-PLAN.md)
-- [Findings](../docs/FINDINGS.md)
+- [Test plan](docs/TEST-PLAN.md)
+- [Findings](docs/FINDINGS.md)
 
 ## Prerequisites
 
@@ -68,6 +68,7 @@ npm run test:report
 
 ```
 automation/
+  docs/               # Test plan + findings
   src/
     clients/          # Auth, Notes, MailHog HTTP clients
     fixtures/         # Playwright fixtures (registeredUser, clients, app)
