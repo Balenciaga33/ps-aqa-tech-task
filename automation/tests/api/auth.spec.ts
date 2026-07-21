@@ -110,6 +110,20 @@ test.describe('API Auth', () => {
     expect((await response.json()).error).toMatch(/invalid or expired/i);
   });
 
+  test('confirm rejects malformed code and unknown email', { tag: '@p1' }, async ({
+    authClient,
+    authHelper,
+  }) => {
+    const pending = await authHelper.signupOnly();
+
+    const malformed = await authClient.confirm(pending.email, '12ab');
+    expect(malformed.status()).toBe(400);
+
+    const unknown = await authClient.confirm(uniqueEmail('ghost'), '123456');
+    expect(unknown.status()).toBe(400);
+    expect((await unknown.json()).error).toBe('User not found.');
+  });
+
   test('confirm rejects reused confirmation code', { tag: '@p1' }, async ({
     authClient,
     mailhog,

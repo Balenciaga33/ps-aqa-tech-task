@@ -111,6 +111,81 @@ test.describe('API Notes', () => {
     expect(response.status()).toBe(422);
   });
 
+  test('enforces title length boundary at 255 characters', { tag: '@p1' }, async ({
+    notesClient,
+    registeredUser,
+  }) => {
+    const okTitle = 't'.repeat(255);
+    const tooLong = 't'.repeat(256);
+
+    const accepted = await notesClient.create(registeredUser.token, {
+      title: okTitle,
+      content: 'within limit',
+    });
+    expect(accepted.status()).toBe(201);
+    expect((await accepted.json()).title).toHaveLength(255);
+
+    const rejected = await notesClient.create(registeredUser.token, {
+      title: tooLong,
+      content: 'within limit',
+    });
+    expect(rejected.status()).toBe(422);
+  });
+
+  test('enforces content max length of 10000 characters', { tag: '@p1' }, async ({
+    notesClient,
+    registeredUser,
+  }) => {
+    const rejected = await notesClient.create(registeredUser.token, {
+      title: 'content-bound',
+      content: 'c'.repeat(10001),
+    });
+    expect(rejected.status()).toBe(422);
+  });
+
+  test('returns 404 for a missing note id', { tag: '@p1' }, async ({
+    notesClient,
+    registeredUser,
+  }) => {
+    const missingId = '00000000-0000-4000-8000-000000000099';
+    expect((await notesClient.get(registeredUser.token, missingId)).status()).toBe(404);
+  });
+
+  test('search title and content filters match their fields only', { tag: '@p1' }, async ({
+    notesClient,
+    registeredUser,
+  }) => {
+    const marker = `field-${Date.now()}`;
+    expect(
+      (
+        await notesClient.create(registeredUser.token, {
+          title: `${marker}-in-title`,
+          content: 'plain body',
+        })
+      ).status(),
+    ).toBe(201);
+    expect(
+      (
+        await notesClient.create(registeredUser.token, {
+          title: 'plain-title',
+          content: `${marker}-in-content`,
+        })
+      ).status(),
+    ).toBe(201);
+
+    const byTitle = notesClient.extractMembers(
+      await (await notesClient.list(registeredUser.token, { title: marker })).json(),
+    );
+    expect(byTitle).toHaveLength(1);
+    expect(byTitle[0].title).toContain(marker);
+
+    const byContent = notesClient.extractMembers(
+      await (await notesClient.list(registeredUser.token, { content: marker })).json(),
+    );
+    expect(byContent).toHaveLength(1);
+    expect(byContent[0].content).toContain(marker);
+  });
+
   test('user cannot access another user notes', { tag: '@p0' }, async ({
     notesClient,
     authHelper,

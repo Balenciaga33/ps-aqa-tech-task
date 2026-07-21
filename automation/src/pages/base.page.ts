@@ -40,4 +40,15 @@ export class BasePage {
     await this.page.locator('#nav-profile-button').click();
     await expect(this.page.locator('#profile-view')).toBeVisible();
   }
+
+  async signOut() {
+    await this.page.locator('#logout-button').click();
+    await expect(this.page.locator('#auth-section')).toBeVisible();
+    await expect(this.page.locator('#account-section')).toBeHidden();
+  }
+
+  async expectGuest() {
+    await expect(this.page.locator('#auth-section')).toBeVisible();
+    await expect(this.page.locator('#account-section')).toBeHidden();
+  }
 }
