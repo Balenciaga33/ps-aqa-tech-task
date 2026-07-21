@@ -62,10 +62,6 @@ jobs:
           tags: qa-task-php-web:ci
           load: true
 
-#      - name: Run Composer In Docker
-#        run: |
-#          make install
-
       - name: Run Migrations In Docker
         run: |
           docker run --rm \
@@ -78,7 +74,7 @@ jobs:
             qa-task-php-cli:ci \
             php bin/console doctrine:migrations:migrate --no-interaction
 
-      - name: Run Tests In Docker
+      - name: Run PHPUnit In Docker
         run: |
           docker run --rm \
             -u root \
@@ -89,3 +85,70 @@ jobs:
             -e APP_SECRET='$ecretf0rt3st' \
             qa-task-php-cli:ci \
             vendor/bin/phpunit -c phpunit.dist.xml
+
+  playwright:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Start application stack
+        run: |
+          LOCAL_IP=127.0.0.1 docker compose up -d --build
+          docker compose run --rm php-cli /bin/sh -c "\
+            php bin/console --no-interaction doctrine:migrations:migrate; \
+            php bin/console --env=test --no-interaction doctrine:migrations:migrate"
+
+      - name: Wait for App and MailHog
+        run: |
+          for i in $(seq 1 60); do
+            if curl -fsS http://localhost:4444/ >/dev/null \
+              && curl -fsS http://localhost:4444/api/doc.json >/dev/null \
+              && curl -fsS http://localhost:8025/ >/dev/null; then
+              echo "Services are ready"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "Services did not become ready in time"
+          docker compose ps
+          docker compose logs --tail=200
+          exit 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: automation/package-lock.json
+
+      - name: Install Playwright dependencies
+        working-directory: automation
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Run Playwright tests
+        working-directory: automation
+        env:
+          CI: true
+          BASE_URL: http://localhost:4444
+          API_URL: http://localhost:4444
+          MAILHOG_URL: http://localhost:8025
+        run: npm test
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            automation/playwright-report
+            automation/test-results
+          retention-days: 14
+
+      - name: Stop application stack
+        if: always()
+        run: docker compose down -v
