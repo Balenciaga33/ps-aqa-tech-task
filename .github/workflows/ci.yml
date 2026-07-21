@@ -94,9 +94,26 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # compose mounts the workspace over the image, so vendor from the image is hidden
+      - name: Install PHP dependencies
+        run: |
+          docker run --rm \
+            -v "$PWD:/app" \
+            -w /app \
+            composer:2.9.3 \
+            install --no-interaction --prefer-dist --optimize-autoloader
+
       - name: Start application stack
         run: |
           LOCAL_IP=127.0.0.1 docker compose up -d --build
+
+          for i in $(seq 1 60); do
+            if docker compose exec -T mysql mysqladmin ping -h 127.0.0.1 -uroot --silent; then
+              break
+            fi
+            sleep 2
+          done
+
           docker compose run --rm php-cli /bin/sh -c "\
             php bin/console --no-interaction doctrine:migrations:migrate; \
             php bin/console --env=test --no-interaction doctrine:migrations:migrate"
