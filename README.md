@@ -63,4 +63,15 @@ Recommended order for first check:
 This diagram can help you understand the main entities and interactions before test design:
 - [Service Diagram](docs/service-diagram.md)
 
+## Automated tests
+
+[![CI](https://github.com/Balenciaga33/ps-aqa-tech-task/actions/workflows/ci.yml/badge.svg)](https://github.com/Balenciaga33/ps-aqa-tech-task/actions/workflows/ci.yml)
+
+API + UI automation lives in [`automation/`](automation/) (Playwright + TypeScript).
+
+- How to install/run: [`automation/README.md`](automation/README.md)
+- Priorities & scope: [`docs/TEST-PLAN.md`](docs/TEST-PLAN.md)
+- Spec vs actual behavior: [`docs/FINDINGS.md`](docs/FINDINGS.md)
+- CI evidence: [Actions runs](https://github.com/Balenciaga33/ps-aqa-tech-task/actions/workflows/ci.yml) (PHPUnit gate → Playwright API → UI; HTML report artifact)
+
 ## Good luck!
