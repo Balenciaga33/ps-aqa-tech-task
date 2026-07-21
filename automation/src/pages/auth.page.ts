@@ -7,6 +7,23 @@ export class AuthPage extends BasePage {
     await this.page.locator('#signup-form button[type="submit"]').click();
   }
 
+  async fillSignUp(email: string, password: string) {
+    await this.page.locator('#signup-email').fill(email);
+    await this.page.locator('#signup-password').fill(password);
+  }
+
+  signupPassword() {
+    return this.page.locator('#signup-password');
+  }
+
+  signupEmail() {
+    return this.page.locator('#signup-email');
+  }
+
+  async submitSignUp() {
+    await this.page.locator('#signup-form button[type="submit"]').click();
+  }
+
   async signIn(email: string, password: string) {
     const responsePromise = this.page.waitForResponse(
       (response) =>

@@ -62,7 +62,7 @@ test.describe('API Auth', () => {
     expect(response.status()).toBe(401);
   });
 
-  test('GET /me returns profile with valid token and 401 without token', { tag: '@p0' }, async ({
+  test('GET /me returns profile with valid token', { tag: '@p0' }, async ({
     authClient,
     registeredUser,
   }) => {
@@ -71,25 +71,40 @@ test.describe('API Auth', () => {
     const meBody = await authClient.expectJson(meResponse);
     expect(meBody.email).toBe(registeredUser.email);
     expect(meBody.id).toEqual(expect.any(String));
-
-    const unauthorized = await authClient.me();
-    expect(unauthorized.status()).toBe(401);
   });
 
-  test('signup validation rejects invalid email and short password', { tag: '@p1' }, async ({
-    authClient,
-  }) => {
-    const badEmail = await authClient.signup({ email: 'not-an-email', password: defaultPassword() });
-    expect(badEmail.status()).toBe(400);
-    expect((await badEmail.json()).error).toMatch(/email/i);
+  const unauthorizedMeCases = [
+    { name: 'without a token', token: undefined },
+    { name: 'with a malformed token', token: 'garbage-token' },
+  ] as const;
 
-    const shortPassword = await authClient.signup({
-      email: uniqueEmail('short'),
-      password: 'short',
+  for (const { name, token } of unauthorizedMeCases) {
+    test(`GET /me rejects request ${name}`, { tag: '@p0' }, async ({ authClient }) => {
+      const response = await authClient.me(token);
+      expect(response.status()).toBe(401);
     });
-    expect(shortPassword.status()).toBe(400);
-    expect((await shortPassword.json()).error).toMatch(/password/i);
-  });
+  }
+
+  const signupValidationCases = [
+    {
+      name: 'invalid email format',
+      payload: () => ({ email: 'not-an-email', password: defaultPassword() }),
+      error: /email/i,
+    },
+    {
+      name: 'password shorter than 8 characters',
+      payload: () => ({ email: uniqueEmail('short'), password: 'short' }),
+      error: /password/i,
+    },
+  ] as const;
+
+  for (const { name, payload, error } of signupValidationCases) {
+    test(`signup validation rejects ${name}`, { tag: '@p1' }, async ({ authClient }) => {
+      const response = await authClient.signup(payload() as { email: string; password: string });
+      expect(response.status()).toBe(400);
+      expect((await response.json()).error).toMatch(error);
+    });
+  }
 
   test('signup rejects already verified user', { tag: '@p0' }, async ({
     authClient,

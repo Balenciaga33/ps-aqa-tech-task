@@ -19,6 +19,13 @@ export class UpdateNoteModal {
     await dialog.locator('button[type="submit"]').click();
     return responsePromise;
   }
+
+  async cancel() {
+    const dialog = this.dialog();
+    await expect(dialog).toBeVisible();
+    await dialog.locator('[data-action="cancel"]').click();
+    await expect(dialog).toHaveCount(0);
+  }
 }
 
 export class DeleteNoteModal {

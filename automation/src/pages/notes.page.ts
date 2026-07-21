@@ -35,6 +35,11 @@ export class NotesPage extends BasePage {
     await this.deleteModal.cancel();
   }
 
+  async cancelEditNote(title: string) {
+    await this.noteItem(title).locator('[data-action="edit"]').click();
+    await this.updateModal.cancel();
+  }
+
   async searchNotes(query: string) {
     const responsePromise = this.page.waitForResponse(
       (response) =>
@@ -42,6 +47,10 @@ export class NotesPage extends BasePage {
     );
     await this.page.locator('#notes-search-query').fill(query);
     return responsePromise;
+  }
+
+  emptyListMessage() {
+    return this.page.getByText('No notes found.');
   }
 
   async setPageSize(size: string) {

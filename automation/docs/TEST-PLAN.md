@@ -16,22 +16,22 @@ Product discrepancies: [FINDINGS.md](FINDINGS.md).
 
 | Area | Scenarios | Priority |
 | --- | --- | --- |
-| Auth signup/confirm | Happy path + MailHog; duplicate verified; validation; malformed/unknown/reuse confirm | P0 / P1 |
-| Auth signin / me | Valid JWT; wrong password; unverified; `/me` 401 | P0 |
+| Auth signup/confirm | Happy path + MailHog; duplicate verified; parameterized validation; malformed/unknown/reuse confirm | P0 / P1 |
+| Auth signin / me | Valid JWT; wrong password; unverified; `/me` without/malformed token | P0 |
 | Notes CRUD | Create/read/update/delete; missing id → 404 | P0 / P1 |
 | Notes security | No JWT → 401; owner isolation | P0 |
 | Notes list | Search `q`; field filters `title`/`content`; pagination; sort | P1 |
-| Notes validation | Empty fields; title 255/256; content > 10000 → 422 | P1 |
+| Notes validation | Empty fields; title trim; 255/256; content > 10000; invalid JSON | P1 |
 
 ## UI coverage
 
 | Area | Scenarios | Priority |
 | --- | --- | --- |
-| Onboarding | Signup → MailHog link → authenticated notes; invalid confirm link | P0 / P1 |
+| Onboarding | Signup → MailHog link → authenticated notes; invalid confirm link; HTML5 signup blocks | P0 / P1 |
 | Session | Sign-in; wrong password; unverified; sign-out; protected route without JWT | P0 / P1 |
 | Profile | Email + id after sign-in | P1 |
-| Notes CRUD | Create / edit / delete (+ cancel delete) | P0 / P1 |
-| Notes list | Search; pagination known-issues; sort | P1 |
+| Notes CRUD | Create / edit / delete (+ cancel edit/delete) | P0 / P1 |
+| Notes list | Search; empty/clear search; pagination known-issues; sort | P1 |
 
 ## Engineering decisions (vs typical suites)
 

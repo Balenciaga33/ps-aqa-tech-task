@@ -111,6 +111,33 @@ test.describe('API Notes', () => {
     expect(response.status()).toBe(422);
   });
 
+  test('trims surrounding whitespace from the title', { tag: '@p1' }, async ({
+    notesClient,
+    registeredUser,
+  }) => {
+    const response = await notesClient.create(registeredUser.token, {
+      title: '  padded-title  ',
+      content: 'body',
+    });
+    expect(response.status()).toBe(201);
+    expect((await response.json()).title).toBe('padded-title');
+  });
+
+  test('rejects a request body that is not valid JSON', { tag: '@p1' }, async ({
+    request,
+    registeredUser,
+  }) => {
+    const response = await request.post('/api/notes', {
+      headers: {
+        Authorization: `Bearer ${registeredUser.token}`,
+        'Content-Type': 'application/json',
+      },
+      data: '{not-valid-json',
+    });
+    expect(response.status()).toBeGreaterThanOrEqual(400);
+    expect(response.status()).toBeLessThan(500);
+  });
+
   test('enforces title length boundary at 255 characters', { tag: '@p1' }, async ({
     notesClient,
     registeredUser,

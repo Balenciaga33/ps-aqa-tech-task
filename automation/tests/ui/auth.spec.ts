@@ -51,6 +51,45 @@ test.describe('UI Auth', () => {
     await expect(authPage.status()).not.toHaveText('');
   });
 
+  const html5SignupBlocks = [
+    {
+      name: 'password shorter than 8 characters',
+      email: () => uniqueEmail('html5-pass'),
+      password: 'short',
+      invalidField: 'password' as const,
+    },
+    {
+      name: 'malformed email',
+      email: () => 'not-an-email',
+      password: defaultPassword(),
+      invalidField: 'email' as const,
+    },
+  ];
+
+  for (const { name, email, password, invalidField } of html5SignupBlocks) {
+    test(`signup is blocked client-side for ${name}`, { tag: '@p1' }, async ({
+      authPage,
+      page,
+    }) => {
+      await authPage.goto();
+      await authPage.fillSignUp(email(), password);
+
+      const requestPromise = page
+        .waitForRequest((req) => req.url().includes('/api/auth/signup'), { timeout: 1000 })
+        .then(() => true)
+        .catch(() => false);
+
+      await authPage.submitSignUp();
+
+      const field =
+        invalidField === 'password' ? authPage.signupPassword() : authPage.signupEmail();
+      const valid = await field.evaluate((el) => (el as HTMLInputElement).validity.valid);
+      expect(valid).toBe(false);
+      expect(await requestPromise).toBe(false);
+      await authPage.expectGuest();
+    });
+  }
+
   test('sign in of unverified user shows error and stays on auth', { tag: '@p1' }, async ({
     authPage,
     authHelper,

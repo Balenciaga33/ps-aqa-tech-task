@@ -44,6 +44,20 @@ test.describe('UI Notes', () => {
     await expect(notesPage.noteItem(payload.title)).toBeVisible();
   });
 
+  test('cancel edit keeps the note unchanged', { tag: '@p1' }, async ({
+    notesPage,
+    notesClient,
+    registeredUser,
+  }) => {
+    const payload = notePayload({ title: `edit-keep-${Date.now()}`, content: 'original' });
+    expect((await notesClient.create(registeredUser.token, payload)).status()).toBe(201);
+
+    await notesPage.openAuthenticated(registeredUser.token);
+    await notesPage.expectAuthenticated();
+    await notesPage.cancelEditNote(payload.title);
+    await expect(notesPage.noteItem(payload.title)).toContainText('original');
+  });
+
   test('search filters notes in the list', { tag: '@p1' }, async ({
     notesPage,
     page,
@@ -68,6 +82,32 @@ test.describe('UI Notes', () => {
     await notesPage.searchNotes(marker);
     await expect(notesPage.noteItem(marker)).toBeVisible();
     await expect(page.locator('.note-item')).toHaveCount(1);
+  });
+
+  test('search empty state and clearing query restores the list', { tag: '@p1' }, async ({
+    notesPage,
+    page,
+    notesClient,
+    registeredUser,
+  }) => {
+    const marker = `restore-${Date.now()}`;
+    expect(
+      (await notesClient.create(registeredUser.token, notePayload({ title: `${marker}-a` }))).status(),
+    ).toBe(201);
+    expect(
+      (await notesClient.create(registeredUser.token, notePayload({ title: `${marker}-b` }))).status(),
+    ).toBe(201);
+
+    await notesPage.openAuthenticated(registeredUser.token);
+    await notesPage.searchNotes(marker);
+    await expect(page.locator('.note-item')).toHaveCount(2);
+
+    await notesPage.searchNotes(`no-match-${Date.now()}`);
+    await expect(notesPage.emptyListMessage()).toBeVisible();
+    await expect(page.locator('.note-item')).toHaveCount(0);
+
+    await notesPage.searchNotes(marker);
+    await expect(page.locator('.note-item')).toHaveCount(2);
   });
 
   test('sort by title A-Z updates the list order', { tag: '@p1' }, async ({
