@@ -1,0 +1,19 @@
+{
+  "name": "ps-aqa-tech-task-automation",
+  "version": "1.0.0",
+  "private": true,
+  "description": "API and UI automated tests for the notes application",
+  "scripts": {
+    "test": "playwright test",
+    "test:api": "playwright test --project=api",
+    "test:ui": "playwright test --project=ui",
+    "test:report": "playwright show-report",
+    "test:headed": "playwright test --project=ui --headed"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.54.1",
+    "@types/node": "^22.16.5",
+    "dotenv": "^16.6.1",
+    "typescript": "^5.8.3"
+  }
+}

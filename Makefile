@@ -5,7 +5,8 @@
 COMPOSER_VER := 2.9.3
 
 # just a shortcut for long docker command string
-DOCKER := docker run --rm -it -v $(shell pwd):/app -w /app
+DOCKER := docker run --rm -v $(shell pwd):/app -w /app
+DOCKER_TTY := docker run --rm -it -v $(shell pwd):/app -w /app
 
 LOCAL_IP := $$(ipconfig getifaddr en0)
 
@@ -14,7 +15,7 @@ clean:
 	rm -rf var/cache/*
 
 composer:
-	${DOCKER} composer:${COMPOSER_VER} bash
+	${DOCKER_TTY} composer:${COMPOSER_VER} bash
 
 cs-check:
 	docker compose run --rm -e PHP_CS_FIXER_IGNORE_ENV=1 php-cli vendor/bin/php-cs-fixer fix --dry-run --diff
