@@ -72,6 +72,16 @@ automation/
   playwright.config.ts
 ```
 
+## Priority matrix
+
+| Priority | Meaning | Scenarios | Layer |
+| --- | --- | --- | --- |
+| **P0** | Product is unusable if broken | Signup → MailHog confirm → JWT; sign-in; notes CRUD; owner isolation; unauthorized access without JWT | API + UI |
+| **P1** | Important, but core still works | `GET /me`; validation (email/password/code/duplicate); search; pagination; sort; profile; delete confirm modal | API + UI |
+| **P2** | Nice-to-have / out of current suite | Visual regression; multi-browser matrix; `APP_MODE=broken`; rare edge cases (expired code timing, rate limits) | — |
+
+Current suite focuses on **P0** and selected **P1**. **P2** is intentionally deferred.
+
 ## Coverage
 
 ### API
