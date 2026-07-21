@@ -117,9 +117,14 @@ Current suite focuses on **P0** and selected **P1**. **P2** is intentionally def
 
 ## CI evidence
 
-GitHub Actions (`.github/workflows/ci.yml`) runs:
+GitHub Actions (`.github/workflows/ci.yml`) pipeline:
 
-1. Existing PHPUnit smoke
-2. Playwright API + UI against Docker Compose (App + MailHog)
+1. **phpunit** — fast backend smoke (build image → migrate → PHPUnit)
+2. **playwright** — starts only if phpunit passed (`needs: phpunit`)
+   - one shared App + MailHog stack
+   - `npm run test:api` first
+   - `npm run test:ui` next (skipped automatically if API step failed)
+
+Outdated runs on the same branch are cancelled via `concurrency`.
 
 Check the repository **Actions** tab for run status. On failure (or for review), download the `playwright-report` artifact.

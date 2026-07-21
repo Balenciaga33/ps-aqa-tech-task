@@ -6,8 +6,14 @@ on:
       - main
   pull_request:
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  build-migrate-test:
+  # Fast backend smoke. Gates expensive E2E so we fail early.
+  phpunit:
+    name: phpunit
     runs-on: ubuntu-latest
 
     services:
@@ -49,18 +55,8 @@ jobs:
           target: php-cli
           tags: qa-task-php-cli:ci
           load: true
-
-      - name: Build Dockerfile (php-web target)
-        uses: docker/build-push-action@v6
-        env:
-          DOCKER_BUILD_RECORD_UPLOAD: false
-        with:
-          context: .
-          target: php-web
-          build-args: |
-            LOCAL_IP=127.0.0.1
-          tags: qa-task-php-web:ci
-          load: true
+          cache-from: type=gha,scope=php-cli
+          cache-to: type=gha,mode=max,scope=php-cli
 
       - name: Run Migrations In Docker
         run: |
@@ -86,15 +82,18 @@ jobs:
             qa-task-php-cli:ci \
             vendor/bin/phpunit -c phpunit.dist.xml
 
+  # One shared App + MailHog stack: API first, then UI (fail-fast inside the job).
   playwright:
+    name: playwright
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    needs: phpunit
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # compose mounts the workspace over the image, so vendor from the image is hidden
+      # compose bind-mounts the workspace over the image, so vendor from the image is hidden
       - name: Install PHP dependencies
         run: |
           docker run --rm \
@@ -147,14 +146,23 @@ jobs:
           npm ci
           npx playwright install --with-deps chromium
 
-      - name: Run Playwright tests
+      - name: Run API tests
         working-directory: automation
         env:
           CI: true
           BASE_URL: http://localhost:4444
           API_URL: http://localhost:4444
           MAILHOG_URL: http://localhost:8025
-        run: npm test
+        run: npm run test:api
+
+      - name: Run UI tests
+        working-directory: automation
+        env:
+          CI: true
+          BASE_URL: http://localhost:4444
+          API_URL: http://localhost:4444
+          MAILHOG_URL: http://localhost:8025
+        run: npm run test:ui
 
       - name: Upload Playwright report
         if: always()
