@@ -42,8 +42,8 @@ Do not put `expect(...)` business assertions inside page objects (visibility wai
 
 ## CI expectations
 
-- Pull requests run PHPUnit, then Playwright **`@p0`** (API then UI).
-- Pushes to `main` run the **full** Playwright suite.
+- Pull requests run **`build → migrate → unit`**, then Playwright **`@p0`** via **`e2e (stack → api → ui)`**.
+- Pushes to `main` run the **full** Playwright suite after the same phpunit gate.
 - HTML report is uploaded as `playwright-report` artifact.
 
 ## Debugging failures

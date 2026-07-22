@@ -12,7 +12,7 @@ Broken mode intentionally randomizes statuses and payloads. Acceptance tests loc
 
 ## Why PHPUnit gates Playwright in CI
 
-PHPUnit is a cheap smoke that the product already shipped. Failing it means the app image/DB path is broken — spending minutes on Compose + Chromium would waste CI. Playwright runs only after that gate (`needs: phpunit`), then **API before UI** on one shared stack.
+PHPUnit is a cheap smoke that the product already shipped. Failing it means the app image/DB path is broken — spending minutes on Compose + Chromium would waste CI. Playwright runs only after that gate (`needs: phpunit`). In the Actions UI the jobs read as **`build → migrate → unit`** then **`e2e (stack → api → ui)`**, with API before UI on one shared stack.
 
 ## Why `@p0` on pull requests and full suite on `main`
 

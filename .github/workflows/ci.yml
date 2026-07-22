@@ -13,7 +13,7 @@ concurrency:
 jobs:
   # Fast backend smoke. Gates expensive E2E so we fail early.
   phpunit:
-    name: phpunit
+    name: build → migrate → unit
     runs-on: ubuntu-latest
 
     services:
@@ -46,7 +46,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build Dockerfile (php-cli target)
+      - name: Build (php-cli image)
         uses: docker/build-push-action@v6
         env:
           DOCKER_BUILD_RECORD_UPLOAD: false
@@ -58,7 +58,7 @@ jobs:
           cache-from: type=gha,scope=php-cli
           cache-to: type=gha,mode=max,scope=php-cli
 
-      - name: Run Migrations In Docker
+      - name: Migrate
         run: |
           docker run --rm \
             -u root \
@@ -70,7 +70,7 @@ jobs:
             qa-task-php-cli:ci \
             php bin/console doctrine:migrations:migrate --no-interaction
 
-      - name: Run PHPUnit In Docker
+      - name: Unit (PHPUnit)
         run: |
           docker run --rm \
             -u root \
@@ -84,7 +84,7 @@ jobs:
 
   # One shared App + MailHog stack: API first, then UI (fail-fast inside the job).
   playwright:
-    name: playwright
+    name: e2e (stack → api → ui)
     runs-on: ubuntu-latest
     timeout-minutes: 30
     needs: phpunit
@@ -102,7 +102,7 @@ jobs:
             composer:2.9.3 \
             install --no-interaction --prefer-dist --optimize-autoloader
 
-      - name: Start application stack
+      - name: Stack (compose up + migrate)
         run: |
           LOCAL_IP=127.0.0.1 docker compose up -d --build
 
@@ -146,7 +146,7 @@ jobs:
           npm ci
           npx playwright install --with-deps chromium
 
-      - name: Run API tests
+      - name: API tests
         working-directory: automation
         env:
           CI: true
@@ -160,7 +160,7 @@ jobs:
             npm run test:api
           fi
 
-      - name: Run UI tests
+      - name: UI tests
         working-directory: automation
         env:
           CI: true

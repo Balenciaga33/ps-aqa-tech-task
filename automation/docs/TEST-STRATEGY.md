@@ -42,7 +42,7 @@ Product discrepancies: [KNOWN-ISSUES.md](KNOWN-ISSUES.md).
 - **API-first UI setup** — register/confirm and seed notes via API; inject JWT into `localStorage` when the browser is only needed for the assertion under test.
 - **Layered clients** — HTTP clients return responses; specs own assertions.
 - **Fixtures** — `registeredUser` per test; reusable auth/notes/mailhog clients.
-- **CI fail-fast** — PHPUnit gate → Playwright API → Playwright UI on one shared Compose stack (`needs` + step order + concurrency cancel).
+- **CI fail-fast** — `build → migrate → unit` gates `e2e (stack → api → ui)` (`needs` + step order + concurrency cancel).
 - **Findings-aware** — assert actual behavior; document doc/code mismatches instead of hiding them.
 
 ## Explicitly out of scope (P2)

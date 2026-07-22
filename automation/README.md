@@ -148,19 +148,15 @@ automation/
 
 ```mermaid
 flowchart LR
-  A[push / PR] --> B[phpunit]
-  B -->|pass| C[Compose App + MailHog]
-  C --> D{event?}
-  D -->|pull_request| E["@p0 API → @p0 UI"]
-  D -->|push main| F[full API → full UI]
-  E --> G[HTML report artifact]
-  F --> G
+  A[push / PR] --> B["build → migrate → unit"]
+  B -->|pass| C["e2e (stack → api → ui)"]
+  C --> D[HTML report artifact]
 ```
 
 GitHub Actions (`.github/workflows/ci.yml`):
 
-1. **phpunit** — fast backend smoke (build image → migrate → PHPUnit)
-2. **playwright** — starts only if phpunit passed (`needs: phpunit`)
+1. **`build → migrate → unit`** — cheap backend gate (PHPUnit)
+2. **`e2e (stack → api → ui)`** — starts only if the gate passed (`needs: phpunit`)
    - one shared App + MailHog stack
    - on **pull_request**: `@p0` API then `@p0` UI
    - on **push to main**: full API then full UI
