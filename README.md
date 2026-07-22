@@ -76,4 +76,5 @@ API + UI automation lives in [`automation/`](automation/) (Playwright + TypeScri
 - CI evidence: [Actions runs](https://github.com/Balenciaga33/ps-aqa-tech-task/actions/workflows/ci.yml) (`build → migrate → unit` → `e2e (stack → api → ui)`; P0 on PR, full on `main`)
 
 Suite highlights: domain-split specs, parameterized validation boundaries, Zod + OpenAPI contract smoke, axe a11y with known-issue allowlist.
+
 ## Good luck!

@@ -16,7 +16,7 @@ PHPUnit is a cheap smoke that the product already shipped. Failing it means the 
 
 ## Why `@p0` on pull requests and full suite on `main`
 
-PR feedback should be fast and focused on blockers (auth, CRUD, isolation). Full P1 coverage (search/sort/pagination nuances, known-issue UI cases) runs on `main` / full local runs so merges still get deep signal without slowing every push.
+PR feedback should be fast and focused on blockers (auth, CRUD, isolation, OpenAPI smoke). Full P1 coverage (validation matrices, search/sort/pagination, profile, a11y, known-issue UI cases) runs on `main` / full local runs so merges still get deep signal without slowing every push.
 
 ## Why API-first UI setup
 

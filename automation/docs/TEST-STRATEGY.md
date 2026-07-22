@@ -6,18 +6,20 @@ Product discrepancies: [KNOWN-ISSUES.md](KNOWN-ISSUES.md).
 
 ## Priorities
 
-| Priority | Meaning |
-| --- | --- |
-| **P0** | Core flows — product unusable if broken (auth chain, notes CRUD, isolation) |
-| **P1** | Important supporting behavior (validation, search/sort/pagination, profile) |
-| **P2** | Edge / expensive cases (deferred or documented only) |
+| Priority | Tag / meaning | CI |
+| --- | --- | --- |
+| **P0** | `@p0` — product unusable if broken (auth chain, notes CRUD, isolation, OpenAPI smoke) | Every **pull_request** |
+| **P1** | `@p1` — supporting behavior (validation, search/sort/pagination, profile, a11y) | Full suite on **`main`** / local `npm test` |
+| **P2** | Deferred / expensive (not automated as acceptance) | — |
+
+Note: priority **P2** ≠ known-issue IDs `P1`–`P3` in [KNOWN-ISSUES.md](KNOWN-ISSUES.md) (those are pagination findings).
 
 ## API coverage
 
 | Area | Scenarios | Priority |
 | --- | --- | --- |
 | Auth signup/confirm | Happy path + MailHog; duplicate verified; parameterized validation; malformed/unknown/reuse confirm | P0 / P1 |
-| Auth signin / me | Valid JWT; wrong password; unverified; `/me` without/malformed token | P0 |
+| Auth signin / me | Valid JWT; wrong password; unverified; `/me` without / malformed / empty token | P0 |
 | Notes CRUD | Create/read/update/delete; missing id → 404 | P0 / P1 |
 | Notes security | No JWT → 401; owner isolation | P0 |
 | Notes list | Search `q`; field filters `title`/`content`; pagination; sort | P1 |
@@ -30,20 +32,16 @@ Product discrepancies: [KNOWN-ISSUES.md](KNOWN-ISSUES.md).
 | --- | --- | --- |
 | Onboarding | Signup → MailHog link → authenticated notes; invalid confirm link; HTML5 signup blocks | P0 / P1 |
 | Session | Sign-in; wrong password; unverified; sign-out; protected route without JWT | P0 / P1 |
-| Profile | Email + id after sign-in | P1 |
+| Profile | Email + id (after UI sign-in and API JWT bootstrap) | P1 |
 | Notes CRUD | Create / edit / delete (+ cancel edit/delete) | P0 / P1 |
 | Notes list | Search; empty/clear search; pagination known-issues; sort | P1 |
 | Accessibility | axe smoke on auth + notes (known `A1`/`A2` allowlisted) | P1 |
 
-## Engineering decisions (vs typical suites)
+## Engineering decisions
 
-- **Risk-based automation** — P0 first; P2 only when cheap.
-- **Isolation** — unique email per registration; parallel-safe; no shared DB cleanup.
-- **API-first UI setup** — register/confirm and seed notes via API; inject JWT into `localStorage` when the browser is only needed for the assertion under test.
-- **Layered clients** — HTTP clients return responses; specs own assertions.
-- **Fixtures** — `registeredUser` per test; reusable auth/notes/mailhog clients.
-- **CI fail-fast** — `build → migrate → unit` gates `e2e (stack → api → ui)` (`needs` + step order + concurrency cancel).
-- **Findings-aware** — assert actual behavior; document doc/code mismatches instead of hiding them.
+Detailed rationale: [ADR.md](ADR.md). Practical rules when adding tests: [CONTRIBUTING.md](../CONTRIBUTING.md).
+
+This suite is risk-based (`@p0` first), parallel-safe (unique emails, no shared DB cleanup), API-first for UI setup, and findings-aware (assert actual behavior; document mismatches in [KNOWN-ISSUES.md](KNOWN-ISSUES.md)). CI fail-fast: `build → migrate → unit` gates `e2e (stack → api → ui)`.
 
 ## Explicitly out of scope (P2)
 

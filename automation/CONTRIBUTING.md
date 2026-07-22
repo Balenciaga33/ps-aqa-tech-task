@@ -6,7 +6,7 @@ Guidelines for extending the Playwright suite in this repository.
 
 1. App stack is running (`make up && make install && make migrate` from repo root).
 2. Node.js 24+.
-3. From `automation/`: `npm ci && npx playwright install chromium`.
+3. From `automation/`: `npm install` (or `npm ci` in CI) && `npx playwright install chromium`.
 
 ## Commands
 

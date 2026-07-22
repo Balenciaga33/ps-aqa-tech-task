@@ -32,7 +32,8 @@ Services used by tests:
 | Service | URL |
 | --- | --- |
 | App UI / API | http://localhost:4444 |
-| API docs | http://localhost:4444/api/doc |
+| API docs (UI) | http://localhost:4444/api/doc |
+| API docs (JSON) | http://localhost:4444/api/doc.json |
 | MailHog | http://localhost:8025 |
 
 ## Setup
@@ -48,8 +49,8 @@ Requires **Node.js 24+** (Active LTS).
 
 Environment variables (see `.env.example`):
 
-- `BASE_URL` — app UI base URL
-- `API_URL` — API base URL (defaults to same host)
+- `BASE_URL` — Playwright `baseURL` and default host for the app
+- `API_URL` — optional override for HTTP clients (`src/config.ts`; defaults to `BASE_URL`)
 - `MAILHOG_URL` — MailHog HTTP API
 
 ## Run tests
@@ -115,34 +116,17 @@ automation/
 | **API notes** | crud / access / list / validation | CRUD, isolation, search/sort/pagination, boundary tables |
 | **API contract** | openapi | Critical paths + documented statuses vs known drift (C1/C2) |
 | **UI auth** | signup / signin / session | Onboarding, HTML5 blocks, logout / JWT bootstrap |
-| **UI notes** | crud / search / sort / pagination | User-visible flows + known P2/P3 |
+| **UI notes** | crud / search / sort / pagination | User-visible flows + known issues P2/P3 |
 | **UI profile** | profile | Email + id |
 | **UI a11y** | axe | Auth + notes serious/critical (A1/A2 allowlisted) |
 
-| Priority | CI | Meaning |
-| --- | --- | --- |
-| **@p0** | Every PR | Product unusable if broken |
-| **@p1** | `main` (full suite) | Supporting behavior, validation matrices, a11y |
-| **P2** | — | Deferred (visual / multi-browser / broken mode) |
-
-## Priority matrix
-
-| Priority | Meaning | Scenarios | Layer |
-| --- | --- | --- | --- |
-| **P0** | Product is unusable if broken | Signup → MailHog confirm → JWT; sign-in; notes CRUD; owner isolation; unauthorized access; OpenAPI critical paths | API + UI |
-| **P1** | Important, but core still works | Validation tables; search; pagination; sort; profile; cancel delete/edit; axe a11y smoke | API + UI |
-| **P2** | Nice-to-have / out of current suite | Visual regression; multi-browser matrix; `APP_MODE=broken`; expired-code wait | — |
+Priorities and CI mapping: see [TEST-STRATEGY.md](docs/TEST-STRATEGY.md) (`@p0` on PR, full suite on `main`; **P2** = deferred scope, not pagination issue IDs).
 
 ## Design decisions
 
-- **Risk-based**: critical auth and notes flows first; no visual regression or full browser matrix (Chromium only).
-- **Independent tests**: unique email per run; no shared mutable fixtures between specs.
-- **Fixtures**: `registeredUser`, typed clients, split page objects (`authPage`, `notesPage`, `profilePage`) via `test.extend`.
-- **API-first UI**: JWT injected into `localStorage`; notes seeded via API; browser used for the behavior under test; network waits via `waitForResponse`.
-- **Findings-aware**: assert actual behavior; document OpenAPI/UI/a11y mismatches in `docs/KNOWN-ISSUES.md`.
-- **Contract-aware**: Zod on critical responses + OpenAPI smoke against `/api/doc.json`.
-- **Parameterized validation**: shared assertion loops for email/password/title/content boundaries.
-- **Healthy mode only**: tests assume `APP_MODE=healthy`.
+Rationale: [ADR.md](docs/ADR.md). Scope & priorities: [TEST-STRATEGY.md](docs/TEST-STRATEGY.md). Product quirks: [KNOWN-ISSUES.md](docs/KNOWN-ISSUES.md).
+
+In short: risk-based `@p0`/`@p1`, API-first UI setup, Zod + OpenAPI contracts, axe smoke, assert actual behavior with `annotateKnownIssue`, `APP_MODE=healthy` only.
 
 ## CI pipeline
 
