@@ -21,11 +21,12 @@ Guidelines for extending the Playwright suite in this repository.
 ## How to add a test
 
 1. Prefer **API** for contract/validation/isolation; use **UI** for user-visible journeys only.
-2. Put specs under `tests/api/...` or `tests/ui/...`.
-3. Tag with `{ tag: '@p0' }` or `{ tag: '@p1' }` (see [test-strategy.md](docs/test-strategy.md)).
-4. Reuse fixtures from `src/fixtures/test.fixtures.ts` (`registeredUser`, clients, page objects).
-5. Keep assertions in the spec; page objects/clients stay thin.
-6. If behavior differs from OpenAPI/docs, assert actual behavior and add/update [known-issues.md](docs/known-issues.md) + `annotateKnownIssue(...)`.
+2. Put specs under domain folders, e.g. `tests/api/auth/…`, `tests/api/notes/…`, `tests/ui/notes/…`, `tests/ui/profile/…`.
+3. Tag with `{ tag: '@p0' }` or `{ tag: '@p1' }` (see [TEST-STRATEGY.md](docs/TEST-STRATEGY.md)).
+4. Prefer **parameterized tables** (`for` / shared cases) for validation boundaries instead of copy-pasted tests.
+5. Reuse fixtures from `src/fixtures/test.fixtures.ts` (`registeredUser`, clients, page objects).
+6. Keep assertions in the spec; page objects/clients stay thin.
+7. If behavior differs from OpenAPI/docs, assert actual behavior and add/update [KNOWN-ISSUES.md](docs/KNOWN-ISSUES.md) + `annotateKnownIssue(...)`.
 
 ## Page objects
 

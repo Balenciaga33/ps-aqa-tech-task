@@ -1,7 +1,7 @@
-import { test, expect, annotateKnownIssue } from '../../src/fixtures/test.fixtures';
-import { notePayload } from '../../src/helpers/data.factory';
+import { test, expect, annotateKnownIssue } from '../../../src/fixtures/test.fixtures';
+import { notePayload } from '../../../src/helpers/data.factory';
 
-test.describe('UI Notes pagination', () => {
+test.describe('UI Notes / pagination', () => {
   test('splits notes across pages and exposes known counter/next issues', { tag: '@p1' }, async ({
     notesPage,
     page,

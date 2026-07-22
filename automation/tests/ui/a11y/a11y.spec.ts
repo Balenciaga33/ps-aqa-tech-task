@@ -1,5 +1,5 @@
-import { test, expect } from '../../src/fixtures/test.fixtures';
-import { expectNoUnexpectedSeriousA11yViolations } from '../../src/helpers/a11y.helper';
+import { test, expect } from '../../../src/fixtures/test.fixtures';
+import { expectNoUnexpectedSeriousA11yViolations } from '../../../src/helpers/a11y.helper';
 
 test.describe('UI accessibility', () => {
   test('auth screen has no unexpected serious/critical axe violations', { tag: '@p1' }, async ({

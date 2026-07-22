@@ -2,7 +2,7 @@
 
 Scope: REST API (auth + notes) and critical UI journeys for the Notes app.
 Stack: Playwright + TypeScript in [`automation/`](../).
-Product discrepancies: [known-issues.md](known-issues.md).
+Product discrepancies: [KNOWN-ISSUES.md](KNOWN-ISSUES.md).
 
 ## Priorities
 
@@ -21,8 +21,8 @@ Product discrepancies: [known-issues.md](known-issues.md).
 | Notes CRUD | Create/read/update/delete; missing id → 404 | P0 / P1 |
 | Notes security | No JWT → 401; owner isolation | P0 |
 | Notes list | Search `q`; field filters `title`/`content`; pagination; sort | P1 |
-| Notes validation | Empty fields; title trim; whitespace content quirk (`D2`); 255/256; content > 10000; invalid JSON; JSON-LD Accept `500` (`C3`) | P1 |
-| API contracts | Zod schemas on signup/confirm/signin/`/me`/note P0 responses | P0 |
+| Notes validation | Parameterized empty/boundary title & content; title trim; whitespace content quirk (`D2`); invalid JSON; JSON-LD Accept `500` (`C3`) | P1 |
+| API contracts | Zod on P0 responses; OpenAPI smoke on `/api/doc.json` (paths + documented statuses; C1/C2 drift annotated) | P0 |
 
 ## UI coverage
 

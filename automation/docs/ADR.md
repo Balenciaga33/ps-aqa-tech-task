@@ -1,6 +1,6 @@
 # Architecture decision records (ADR)
 
-Short ADRs for the automation suite. Scope lives in [test-strategy.md](test-strategy.md); product quirks in [known-issues.md](known-issues.md).
+Short ADRs for the automation suite. Scope lives in [TEST-STRATEGY.md](TEST-STRATEGY.md); product quirks in [KNOWN-ISSUES.md](KNOWN-ISSUES.md).
 
 ## Why Playwright + TypeScript for both API and UI
 
@@ -24,7 +24,7 @@ Register/confirm and seed data via API, inject JWT into `localStorage`, and driv
 
 ## Why findings are annotated, not forced red
 
-Documented vs actual mismatches (see known-issues.md) are product/spec issues. Tests assert **actual** behavior and carry `known-issue` annotations so CI stays a reliable merge gate while issues remain visible to reviewers.
+Documented vs actual mismatches (see KNOWN-ISSUES.md) are product/spec issues. Tests assert **actual** behavior and carry `known-issue` annotations so CI stays a reliable merge gate while issues remain visible to reviewers.
 
 ## Why Zod schemas on critical API responses
 
@@ -32,4 +32,8 @@ Status codes alone miss silent contract drift (renamed fields, wrong types). Zod
 
 ## Why axe a11y smoke (with known-issue allowlist)
 
-A short axe run on auth + notes surfaces accessibility debt without owning a full WCAG audit. Serious/critical rules outside the known-issues allowlist still fail; known product issues (`A1` color-contrast, `A2` missing `lang`) are annotated so reviewers see them and CI stays green.
+A short axe run on auth + notes surfaces accessibility debt without owning a full WCAG audit. Serious/critical rules outside the KNOWN-ISSUES allowlist still fail; known product issues (`A1` color-contrast, `A2` missing `lang`) are annotated so reviewers see them and CI stays green.
+
+## Why OpenAPI contract smoke
+
+`/api/doc.json` is the published contract reviewers compare against. A cheap P0 smoke asserts critical paths/methods exist and documents success/unauth codes — then links known drift (C1 confirm 201 vs 200, C2 notes 401 vs 403) instead of silently diverging from the spec.

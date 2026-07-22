@@ -58,6 +58,6 @@ export { expect };
 export function annotateKnownIssue(id: string, summary: string) {
   test.info().annotations.push({
     type: 'known-issue',
-    description: `known-issues.md ${id}: ${summary}`,
+    description: `KNOWN-ISSUES.md ${id}: ${summary}`,
   });
 }

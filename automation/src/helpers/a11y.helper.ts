@@ -4,14 +4,14 @@ import { expect } from '@playwright/test';
 import { annotateKnownIssue } from '../fixtures/test.fixtures';
 
 /**
- * Product debt tracked in known-issues.md (A1/A2) — not a merge blocker.
+ * Product debt tracked in KNOWN-ISSUES.md (A1/A2) — not a merge blocker.
  * New serious/critical rules outside this set still fail the suite.
  */
 const KNOWN_SERIOUS_A11Y_RULES = new Set(['color-contrast', 'html-has-lang']);
 
 /**
  * Runs axe and fails on unexpected serious/critical issues.
- * Known product violations are annotated and allowed (known-issues A1/A2).
+ * Known product violations are annotated and allowed (KNOWN-ISSUES A1/A2).
  */
 export async function expectNoUnexpectedSeriousA11yViolations(page: Page, label: string) {
   const results = await new AxeBuilder({ page })
