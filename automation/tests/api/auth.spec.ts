@@ -1,5 +1,11 @@
 import { test, expect, annotateKnownIssue } from '../../src/fixtures/test.fixtures';
 import { defaultPassword, uniqueEmail } from '../../src/helpers/data.factory';
+import {
+  meResponseSchema,
+  parseSchema,
+  signupResponseSchema,
+  tokenResponseSchema,
+} from '../../src/schemas/api.schemas';
 
 test.describe('API Auth', () => {
   test('signup sends confirmation email and confirm returns JWT', { tag: '@p0' }, async ({
@@ -12,7 +18,11 @@ test.describe('API Auth', () => {
 
     const signupResponse = await authClient.signup({ email, password });
     expect(signupResponse.status()).toBe(201);
-    const signupBody = await authClient.expectJson(signupResponse);
+    const signupBody = parseSchema(
+      signupResponseSchema,
+      await authClient.expectJson(signupResponse),
+      'signup',
+    );
     expect(signupBody.message).toBe('Confirmation code sent to email.');
 
     const code = await mailhog.waitForConfirmationCode(email);
@@ -20,13 +30,17 @@ test.describe('API Auth', () => {
 
     const confirmResponse = await authClient.confirm(email, code);
     expect(confirmResponse.status()).toBe(201);
-    const confirmBody = await authClient.expectJson(confirmResponse);
-    expect(confirmBody.token).toEqual(expect.any(String));
+    const confirmBody = parseSchema(
+      tokenResponseSchema,
+      await authClient.expectJson(confirmResponse),
+      'confirm',
+    );
     expect(confirmBody.message).toBe('Account confirmed.');
 
-    const me = await authClient.me(confirmBody.token as string);
+    const me = await authClient.me(confirmBody.token);
     expect(me.status()).toBe(200);
-    expect((await me.json()).email).toBe(email);
+    const meBody = parseSchema(meResponseSchema, await me.json(), 'me after confirm');
+    expect(meBody.email).toBe(email);
   });
 
   test('signin returns JWT for verified user', { tag: '@p0' }, async ({
@@ -38,8 +52,7 @@ test.describe('API Auth', () => {
       password: registeredUser.password,
     });
     expect(signinResponse.status()).toBe(200);
-    const body = await authClient.expectJson(signinResponse);
-    expect(body.token).toEqual(expect.any(String));
+    parseSchema(tokenResponseSchema, await authClient.expectJson(signinResponse), 'signin');
   });
 
   test('signin rejects invalid credentials', { tag: '@p0' }, async ({
@@ -68,9 +81,8 @@ test.describe('API Auth', () => {
   }) => {
     const meResponse = await authClient.me(registeredUser.token);
     expect(meResponse.status()).toBe(200);
-    const meBody = await authClient.expectJson(meResponse);
+    const meBody = parseSchema(meResponseSchema, await meResponse.json(), 'me');
     expect(meBody.email).toBe(registeredUser.email);
-    expect(meBody.id).toEqual(expect.any(String));
   });
 
   const unauthorizedMeCases = [

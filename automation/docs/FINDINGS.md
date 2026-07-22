@@ -45,6 +45,20 @@ Tests assert **actual** behavior and reference these items via `test.info().anno
 - **Root cause:** same as #4/#5 — heuristic `length >= pageSize`
 - **Covered by:** UI pagination spec (known-issue)
 
+## 7. Primary buttons fail WCAG AA color contrast
+
+- **Expected:** text/background contrast ≥ 4.5:1 (WCAG 2 AA)
+- **Actual:** primary buttons use `#fffaf6` on `#b8743f` (~3.61:1)
+- **Impact:** harder to read for low-vision users; axe `color-contrast` (serious)
+- **Covered by:** UI a11y smoke (allowlisted + annotated)
+
+## 8. `<html>` is missing `lang` attribute
+
+- **Expected:** `<html lang="en">` (or appropriate locale)
+- **Actual:** bare `<html>`
+- **Impact:** screen readers may guess language incorrectly; axe `html-has-lang` (serious)
+- **Covered by:** UI a11y smoke (allowlisted + annotated)
+
 ## Observation: `APP_MODE=broken`
 
 Intentional chaos mode randomizes status codes / payload keys / confirmation links and blanks note content.

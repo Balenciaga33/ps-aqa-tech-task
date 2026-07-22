@@ -1,5 +1,6 @@
 import { test, expect, annotateKnownIssue } from '../../src/fixtures/test.fixtures';
 import { notePayload } from '../../src/helpers/data.factory';
+import { noteSchema, parseSchema } from '../../src/schemas/api.schemas';
 
 test.describe('API Notes', () => {
   test('CRUD lifecycle for authenticated user', { tag: '@p0' }, async ({
@@ -11,16 +12,14 @@ test.describe('API Notes', () => {
 
     const createResponse = await notesClient.create(registeredUser.token, payload);
     expect(createResponse.status()).toBe(201);
-    const created = await createResponse.json();
-    expect(created.id).toEqual(expect.any(String));
+    const created = parseSchema(noteSchema, await createResponse.json(), 'create note');
     expect(created.title).toBe(payload.title);
     expect(created.content).toBe(payload.content);
-    expect(created.created_at).toEqual(expect.any(String));
-    expect(created.updated_at).toEqual(expect.any(String));
 
     const getResponse = await notesClient.get(registeredUser.token, created.id);
     expect(getResponse.status()).toBe(200);
-    expect((await getResponse.json()).id).toBe(created.id);
+    const fetched = parseSchema(noteSchema, await getResponse.json(), 'get note');
+    expect(fetched.id).toBe(created.id);
 
     const updatedPayload = notePayload({ title: `${payload.title} updated` });
     const updateResponse = await notesClient.update(
@@ -29,7 +28,7 @@ test.describe('API Notes', () => {
       updatedPayload,
     );
     expect(updateResponse.status()).toBe(200);
-    const updated = await updateResponse.json();
+    const updated = parseSchema(noteSchema, await updateResponse.json(), 'update note');
     expect(updated.title).toBe(updatedPayload.title);
     expect(updated.content).toBe(updatedPayload.content);
 

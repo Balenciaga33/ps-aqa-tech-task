@@ -2,7 +2,7 @@
 
 API and UI automated tests for the notes application.
 
-Stack: **Playwright + TypeScript**.
+Stack: **Playwright + TypeScript**, with **Zod** response schemas and **axe** a11y smoke.
 
 Related docs:
 - [Test plan](docs/TEST-PLAN.md)
@@ -87,17 +87,18 @@ automation/
   src/
     clients/          # Auth, Notes, MailHog HTTP clients
     fixtures/         # registeredUser, clients, page objects
-    helpers/          # Auth bootstrap, unique test data
+    helpers/          # Auth bootstrap, unique test data, a11y helper
     pages/
       base.page.ts
       auth.page.ts
       notes.page.ts
       profile.page.ts
       components/     # Note update/delete modals
+    schemas/          # Zod API response contracts
     types/            # Shared API types
   tests/
     api/              # API specs
-    ui/               # UI E2E specs
+    ui/               # UI E2E + a11y specs
   CONTRIBUTING.md
   playwright.config.ts
 ```
@@ -107,7 +108,7 @@ automation/
 | Priority | Meaning | Scenarios | Layer |
 | --- | --- | --- | --- |
 | **P0** | Product is unusable if broken | Signup → MailHog confirm → JWT; sign-in; notes CRUD; owner isolation; unauthorized access without JWT | API + UI |
-| **P1** | Important, but core still works | `GET /me`; validation; search; pagination; sort; profile; cancel delete; UI list controls | API + UI |
+| **P1** | Important, but core still works | `GET /me`; validation; search; pagination; sort; profile; cancel delete/edit; UI list controls; axe a11y smoke | API + UI |
 | **P2** | Nice-to-have / out of current suite | Visual regression; multi-browser matrix; `APP_MODE=broken`; expired-code wait | — |
 
 Current suite focuses on **P0** and selected **P1**. **P2** is intentionally deferred.
@@ -118,7 +119,8 @@ Current suite focuses on **P0** and selected **P1**. **P2** is intentionally def
 - **Independent tests**: unique email per run; no shared mutable fixtures between specs.
 - **Fixtures**: `registeredUser`, typed clients, split page objects (`authPage`, `notesPage`, `profilePage`) via `test.extend`.
 - **API-first UI**: JWT injected into `localStorage`; notes seeded via API; browser used for the behavior under test; network waits via `waitForResponse`.
-- **Findings-aware**: assert actual behavior; document OpenAPI/UI mismatches in `docs/FINDINGS.md`.
+- **Findings-aware**: assert actual behavior; document OpenAPI/UI/a11y mismatches in `docs/FINDINGS.md`.
+- **Contract-aware**: Zod schemas on critical auth/notes responses.
 - **Healthy mode only**: tests assume `APP_MODE=healthy`.
 
 ## CI evidence

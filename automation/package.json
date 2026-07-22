@@ -17,9 +17,11 @@
     "test:headed": "playwright test --project=ui --headed"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.12.1",
     "@playwright/test": "^1.54.1",
     "@types/node": "^24.0.0",
     "dotenv": "^16.6.1",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "zod": "^4.4.3"
   }
 }

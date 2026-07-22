@@ -22,6 +22,7 @@ Product discrepancies: [FINDINGS.md](FINDINGS.md).
 | Notes security | No JWT → 401; owner isolation | P0 |
 | Notes list | Search `q`; field filters `title`/`content`; pagination; sort | P1 |
 | Notes validation | Empty fields; title trim; 255/256; content > 10000; invalid JSON | P1 |
+| API contracts | Zod schemas on signup/confirm/signin/`/me`/note P0 responses | P0 |
 
 ## UI coverage
 
@@ -32,6 +33,7 @@ Product discrepancies: [FINDINGS.md](FINDINGS.md).
 | Profile | Email + id after sign-in | P1 |
 | Notes CRUD | Create / edit / delete (+ cancel edit/delete) | P0 / P1 |
 | Notes list | Search; empty/clear search; pagination known-issues; sort | P1 |
+| Accessibility | axe smoke on auth + notes (known contrast/`lang` issues allowlisted) | P1 |
 
 ## Engineering decisions (vs typical suites)
 

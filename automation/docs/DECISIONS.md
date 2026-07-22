@@ -25,3 +25,11 @@ Register/confirm and seed data via API, inject JWT into `localStorage`, and driv
 ## Why findings are annotated, not forced red
 
 Documented vs actual mismatches (see FINDINGS.md) are product/spec issues. Tests assert **actual** behavior and carry `known-issue` annotations so CI stays a reliable merge gate while findings remain visible to reviewers.
+
+## Why Zod schemas on critical API responses
+
+Status codes alone miss silent contract drift (renamed fields, wrong types). Zod parses signup/confirm/signin/`/me`/note payloads on P0 paths so shape regressions fail fast with a readable path/message.
+
+## Why axe a11y smoke (with known-issue allowlist)
+
+A short axe run on auth + notes surfaces accessibility debt without owning a full WCAG audit. Serious/critical rules outside the FINDINGS allowlist still fail; known product issues (#7 color-contrast, #8 missing `lang`) are annotated so reviewers see them and CI stays green.
