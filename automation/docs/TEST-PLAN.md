@@ -21,7 +21,7 @@ Product discrepancies: [FINDINGS.md](FINDINGS.md).
 | Notes CRUD | Create/read/update/delete; missing id → 404 | P0 / P1 |
 | Notes security | No JWT → 401; owner isolation | P0 |
 | Notes list | Search `q`; field filters `title`/`content`; pagination; sort | P1 |
-| Notes validation | Empty fields; title trim; 255/256; content > 10000; invalid JSON | P1 |
+| Notes validation | Empty fields; title trim; whitespace content quirk (`D2`); 255/256; content > 10000; invalid JSON; JSON-LD Accept `500` (`C3`) | P1 |
 | API contracts | Zod schemas on signup/confirm/signin/`/me`/note P0 responses | P0 |
 
 ## UI coverage

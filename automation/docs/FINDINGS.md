@@ -28,6 +28,15 @@ IDs are stable (`C*`, `D*`, `P*`, `A*`) so annotations survive reordering inside
 | Risk | Spec is wrong more than the security behavior; prefer updating the doc |
 | Evidence | API notes authz smoke; annotation `C2` |
 
+### C3 — `Accept: application/ld+json` crashes list notes with `500`
+
+| | |
+| --- | --- |
+| Expected | `406 Not Acceptable` (or a documented JSON-LD collection) when the negotiated format is unsupported |
+| Runtime | `GET /api/notes` with `Accept: application/ld+json` → **500** HTML: “Serialization for the format jsonld is not supported” |
+| Risk | Content negotiation failure looks like a server outage to API clients |
+| Evidence | API notes content-negotiation spec; annotation `C3` |
+
 ---
 
 ## Data integrity
@@ -40,6 +49,15 @@ IDs are stable (`C*`, `D*`, `P*`, `A*`) so annotations survive reordering inside
 | Runtime | `PUT /api/notes/{id}` yields a new `created_at` (“now”) |
 | Risk | Creation history is silently lost on every edit |
 | Evidence | Notes CRUD (shape via Zod `noteSchema`); immutability not asserted; annotation `D1` |
+
+### D2 — Note `content` accepts whitespace-only values (title does not)
+
+| | |
+| --- | --- |
+| Expected | Same “required / non-blank” rules for title and content (title already trims + rejects `"   "`) |
+| Runtime | `content: "   "` (or tabs/newlines) creates a note with **201** and stores the blank-looking string; content is also **not trimmed** (`"  hello  "` stays padded) |
+| Risk | “Empty” notes slip through UI/API while title validation looks strict |
+| Evidence | API notes validation specs; annotation `D2` |
 
 ---
 

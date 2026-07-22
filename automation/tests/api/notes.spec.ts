@@ -122,6 +122,27 @@ test.describe('API Notes', () => {
     expect((await response.json()).title).toBe('padded-title');
   });
 
+  test('accepts whitespace-only content unlike title (known issue)', { tag: '@p1' }, async ({
+    notesClient,
+    registeredUser,
+  }) => {
+    annotateKnownIssue('D2', 'content accepts whitespace-only / is not trimmed');
+
+    const blankLooking = await notesClient.create(registeredUser.token, {
+      title: 'blank-looking-content',
+      content: '   ',
+    });
+    expect(blankLooking.status()).toBe(201);
+    expect((await blankLooking.json()).content).toBe('   ');
+
+    const padded = await notesClient.create(registeredUser.token, {
+      title: 'padded-content',
+      content: '  hello  ',
+    });
+    expect(padded.status()).toBe(201);
+    expect((await padded.json()).content).toBe('  hello  ');
+  });
+
   test('rejects a request body that is not valid JSON', { tag: '@p1' }, async ({
     request,
     registeredUser,
@@ -133,8 +154,23 @@ test.describe('API Notes', () => {
       },
       data: '{not-valid-json',
     });
-    expect(response.status()).toBeGreaterThanOrEqual(400);
-    expect(response.status()).toBeLessThan(500);
+    expect(response.status()).toBe(400);
+  });
+
+  test('JSON-LD Accept on notes list returns 500 (known issue)', { tag: '@p1' }, async ({
+    request,
+    registeredUser,
+  }) => {
+    annotateKnownIssue('C3', 'Accept application/ld+json yields 500 instead of 406');
+
+    const response = await request.get('/api/notes', {
+      headers: {
+        Authorization: `Bearer ${registeredUser.token}`,
+        Accept: 'application/ld+json',
+      },
+    });
+    expect(response.status()).toBe(500);
+    expect(await response.text()).toMatch(/jsonld|Serialization/i);
   });
 
   test('enforces title length boundary at 255 characters', { tag: '@p1' }, async ({
