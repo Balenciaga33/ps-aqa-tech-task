@@ -1,4 +1,4 @@
-# Product findings (automation audit)
+# Known product issues
 
 Issues caught while building this Playwright suite against `APP_MODE=healthy`.
 We assert **what the app actually does**, keep CI green, and attach Playwright

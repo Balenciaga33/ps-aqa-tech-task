@@ -5,9 +5,9 @@ API and UI automated tests for the notes application.
 Stack: **Playwright + TypeScript**, with **Zod** response schemas and **axe** a11y smoke.
 
 Related docs:
-- [Test plan](docs/TEST-PLAN.md)
-- [Findings](docs/FINDINGS.md)
-- [Decisions](docs/DECISIONS.md)
+- [Test strategy](docs/test-strategy.md)
+- [Known issues](docs/known-issues.md)
+- [ADRs](docs/adr.md)
 - [Contributing](CONTRIBUTING.md)
 
 ## Prerequisites
@@ -83,7 +83,7 @@ make test       # PHPUnit smoke (product)
 
 ```
 automation/
-  docs/               # Test plan, findings, decisions
+  docs/               # test-strategy, known-issues, adr
   src/
     clients/          # Auth, Notes, MailHog HTTP clients
     fixtures/         # registeredUser, clients, page objects
@@ -119,7 +119,7 @@ Current suite focuses on **P0** and selected **P1**. **P2** is intentionally def
 - **Independent tests**: unique email per run; no shared mutable fixtures between specs.
 - **Fixtures**: `registeredUser`, typed clients, split page objects (`authPage`, `notesPage`, `profilePage`) via `test.extend`.
 - **API-first UI**: JWT injected into `localStorage`; notes seeded via API; browser used for the behavior under test; network waits via `waitForResponse`.
-- **Findings-aware**: assert actual behavior; document OpenAPI/UI/a11y mismatches in `docs/FINDINGS.md`.
+- **Findings-aware**: assert actual behavior; document OpenAPI/UI/a11y mismatches in `docs/known-issues.md`.
 - **Contract-aware**: Zod schemas on critical auth/notes responses.
 - **Healthy mode only**: tests assume `APP_MODE=healthy`.
 

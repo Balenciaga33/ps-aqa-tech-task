@@ -22,10 +22,10 @@ Guidelines for extending the Playwright suite in this repository.
 
 1. Prefer **API** for contract/validation/isolation; use **UI** for user-visible journeys only.
 2. Put specs under `tests/api/...` or `tests/ui/...`.
-3. Tag with `{ tag: '@p0' }` or `{ tag: '@p1' }` (see [TEST-PLAN.md](docs/TEST-PLAN.md)).
+3. Tag with `{ tag: '@p0' }` or `{ tag: '@p1' }` (see [test-strategy.md](docs/test-strategy.md)).
 4. Reuse fixtures from `src/fixtures/test.fixtures.ts` (`registeredUser`, clients, page objects).
 5. Keep assertions in the spec; page objects/clients stay thin.
-6. If behavior differs from OpenAPI/docs, assert actual behavior and add/update [FINDINGS.md](docs/FINDINGS.md) + `annotateKnownIssue(...)`.
+6. If behavior differs from OpenAPI/docs, assert actual behavior and add/update [known-issues.md](docs/known-issues.md) + `annotateKnownIssue(...)`.
 
 ## Page objects
 

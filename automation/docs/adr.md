@@ -1,6 +1,6 @@
-# Engineering decisions
+# Architecture decision records (ADR)
 
-Short ADRs for the automation suite. Full priorities live in [TEST-PLAN.md](TEST-PLAN.md); product quirks in [FINDINGS.md](FINDINGS.md).
+Short ADRs for the automation suite. Scope lives in [test-strategy.md](test-strategy.md); product quirks in [known-issues.md](known-issues.md).
 
 ## Why Playwright + TypeScript for both API and UI
 
@@ -24,7 +24,7 @@ Register/confirm and seed data via API, inject JWT into `localStorage`, and driv
 
 ## Why findings are annotated, not forced red
 
-Documented vs actual mismatches (see FINDINGS.md) are product/spec issues. Tests assert **actual** behavior and carry `known-issue` annotations so CI stays a reliable merge gate while findings remain visible to reviewers.
+Documented vs actual mismatches (see known-issues.md) are product/spec issues. Tests assert **actual** behavior and carry `known-issue` annotations so CI stays a reliable merge gate while issues remain visible to reviewers.
 
 ## Why Zod schemas on critical API responses
 
@@ -32,4 +32,4 @@ Status codes alone miss silent contract drift (renamed fields, wrong types). Zod
 
 ## Why axe a11y smoke (with known-issue allowlist)
 
-A short axe run on auth + notes surfaces accessibility debt without owning a full WCAG audit. Serious/critical rules outside the FINDINGS allowlist still fail; known product issues (`A1` color-contrast, `A2` missing `lang`) are annotated so reviewers see them and CI stays green.
+A short axe run on auth + notes surfaces accessibility debt without owning a full WCAG audit. Serious/critical rules outside the known-issues allowlist still fail; known product issues (`A1` color-contrast, `A2` missing `lang`) are annotated so reviewers see them and CI stays green.

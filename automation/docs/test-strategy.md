@@ -1,8 +1,8 @@
-# Test Plan
+# Test strategy
 
 Scope: REST API (auth + notes) and critical UI journeys for the Notes app.
 Stack: Playwright + TypeScript in [`automation/`](../).
-Product discrepancies: [FINDINGS.md](FINDINGS.md).
+Product discrepancies: [known-issues.md](known-issues.md).
 
 ## Priorities
 
