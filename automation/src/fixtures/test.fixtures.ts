@@ -55,9 +55,9 @@ export const test = base.extend<Fixtures>({
 
 export { expect };
 
-export function annotateKnownIssue(id: number, summary: string) {
+export function annotateKnownIssue(id: string, summary: string) {
   test.info().annotations.push({
     type: 'known-issue',
-    description: `FINDINGS.md #${id}: ${summary}`,
+    description: `FINDINGS.md ${id}: ${summary}`,
   });
 }

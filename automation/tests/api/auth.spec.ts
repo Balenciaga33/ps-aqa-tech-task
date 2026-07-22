@@ -12,7 +12,7 @@ test.describe('API Auth', () => {
     authClient,
     mailhog,
   }) => {
-    annotateKnownIssue(1, 'confirm returns 201 instead of documented 200');
+    annotateKnownIssue('C1', 'confirm returns 201 instead of documented 200');
     const email = uniqueEmail('signup');
     const password = defaultPassword();
 

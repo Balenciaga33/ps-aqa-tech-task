@@ -7,7 +7,7 @@ test.describe('API Notes', () => {
     notesClient,
     registeredUser,
   }) => {
-    annotateKnownIssue(3, 'PUT resets created_at (immutability not asserted)');
+    annotateKnownIssue('D1', 'PUT resets created_at (immutability not asserted)');
     const payload = notePayload();
 
     const createResponse = await notesClient.create(registeredUser.token, payload);
@@ -43,7 +43,7 @@ test.describe('API Notes', () => {
     notesClient,
     registeredUser,
   }) => {
-    annotateKnownIssue(4, 'list returns bare JSON array without total metadata');
+    annotateKnownIssue('P1', 'list returns bare JSON array without total metadata');
     const marker = `search-${Date.now()}`;
 
     for (let i = 0; i < 6; i += 1) {
@@ -96,7 +96,7 @@ test.describe('API Notes', () => {
   });
 
   test('notes endpoints require authentication', { tag: '@p0' }, async ({ request }) => {
-    annotateKnownIssue(2, 'unauthenticated notes calls return 401 not documented 403');
+    annotateKnownIssue('C2', 'unauthenticated notes calls return 401 not documented 403');
     expect((await request.get('/api/notes')).status()).toBe(401);
     expect((await request.post('/api/notes', { data: notePayload() })).status()).toBe(401);
     expect((await request.get('/api/notes/00000000-0000-4000-8000-000000000000')).status()).toBe(401);

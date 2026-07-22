@@ -1,65 +1,106 @@
-# Findings: documented / expected vs actual behavior
+# Product findings (automation audit)
 
-Discrepancies found while designing and running the automated suite.
-Tests assert **actual** behavior and reference these items via `test.info().annotations` / comments where relevant, so CI stays green while findings stay visible.
+Issues caught while building this Playwright suite against `APP_MODE=healthy`.
+We assert **what the app actually does**, keep CI green, and attach Playwright
+`known-issue` annotations that point at the IDs below.
 
-## 1. `POST /api/auth/confirm` returns 201 instead of documented 200
+IDs are stable (`C*`, `D*`, `P*`, `A*`) so annotations survive reordering inside a section.
 
-- **Documented:** `200` in OpenAPI (`/api/doc.json`)
-- **Actual:** `201 Created` (`AuthController::confirm`)
-- **Impact:** Strict clients expecting 200 may mis-handle success
-- **Covered by:** API auth confirm happy-path (accepts 201; annotated)
+---
 
-## 2. Unauthenticated notes access returns 401 instead of documented 403
+## Contract drift (OpenAPI ↔ runtime)
 
-- **Documented:** `403` for `/api/notes*` without auth
-- **Actual:** `401` from the JWT firewall before API Platform authorization
-- **Impact:** Spec should be updated; 401 is semantically reasonable for missing token
-- **Covered by:** API notes unauthorized access tests
+### C1 — Email confirm succeeds with `201`, not documented `200`
 
-## 3. `PUT /api/notes/{id}` resets `created_at`
+| | |
+| --- | --- |
+| OpenAPI | `POST /api/auth/confirm` → `200` |
+| Runtime | `201 Created` from `AuthController::confirm` |
+| Risk | Strict HTTP clients may reject a successful confirm |
+| Evidence | API auth happy-path + Zod `tokenResponseSchema`; annotation `C1` |
 
-- **Expected:** `created_at` immutable; only `updated_at` changes
-- **Actual:** after PUT, `created_at` is rewritten to "now" (entity lifecycle on replace semantics)
-- **Impact:** creation history is lost on every update
-- **Covered by:** API notes CRUD (asserts update fields; documents that created_at is not stable)
+### C2 — Missing JWT on notes is `401`, not documented `403`
 
-## 4. List endpoint returns a bare JSON array (no total count)
+| | |
+| --- | --- |
+| OpenAPI | unauthenticated `/api/notes*` → `403` |
+| Runtime | Symfony JWT firewall answers `401` before API Platform authz |
+| Risk | Spec is wrong more than the security behavior; prefer updating the doc |
+| Evidence | API notes authz smoke; annotation `C2` |
 
-- **Expected (Hydra-style):** collection metadata such as `hydra:totalItems` for pagination UX
-- **Actual:** plain JSON array when `Accept: application/json`
-- **Impact:** UI cannot show reliable totals / last-page detection (see #5–#6)
-- **Covered by:** API pagination tests + UI pagination known-issue
+---
 
-## 5. UI notes counter shows page slice size, not real total
+## Data integrity
 
-- **Expected:** with 7 notes and page size 5 → `7 notes`, `Page 1 / 2`
-- **Actual:** first page often shows `5 notes` and incomplete page info until later navigation
-- **Where:** `public/assets/app.js` `refreshNotes()` falls back to current payload length
-- **Covered by:** UI pagination spec (known-issue)
+### D1 — Updating a note rewrites `created_at`
 
-## 6. Next stays enabled on a full last page
+| | |
+| --- | --- |
+| Expected | `created_at` fixed at create; only `updated_at` moves |
+| Runtime | `PUT /api/notes/{id}` yields a new `created_at` (“now”) |
+| Risk | Creation history is silently lost on every edit |
+| Evidence | Notes CRUD (shape via Zod `noteSchema`); immutability not asserted; annotation `D1` |
 
-- **Expected:** exact multiple of page size → Next disabled
-- **Actual:** Next enabled; clicking yields an empty next page
-- **Root cause:** same as #4/#5 — heuristic `length >= pageSize`
-- **Covered by:** UI pagination spec (known-issue)
+---
 
-## 7. Primary buttons fail WCAG AA color contrast
+## Pagination cascade (API gap → UI symptoms)
 
-- **Expected:** text/background contrast ≥ 4.5:1 (WCAG 2 AA)
-- **Actual:** primary buttons use `#fffaf6` on `#b8743f` (~3.61:1)
-- **Impact:** harder to read for low-vision users; axe `color-contrast` (serious)
-- **Covered by:** UI a11y smoke (allowlisted + annotated)
+Root cause is shared: list responses are a **bare JSON array** (no collection total),
+so the SPA cannot know the real catalog size.
 
-## 8. `<html>` is missing `lang` attribute
+### P1 — `GET /api/notes` has no total metadata
 
-- **Expected:** `<html lang="en">` (or appropriate locale)
-- **Actual:** bare `<html>`
-- **Impact:** screen readers may guess language incorrectly; axe `html-has-lang` (serious)
-- **Covered by:** UI a11y smoke (allowlisted + annotated)
+| | |
+| --- | --- |
+| Expected | Collection total (`hydra:totalItems`, header, or equivalent) |
+| Runtime | Plain `Note[]` for `Accept: application/json` |
+| Risk | Any client-side pager must guess |
+| Evidence | API list/search/pagination specs; annotation `P1` |
 
-## Observation: `APP_MODE=broken`
+### P2 — Notes counter reflects the current page, not the catalog
 
-Intentional chaos mode randomizes status codes / payload keys / confirmation links and blanks note content.
-The suite targets `APP_MODE=healthy` only. Strict contract assertions would catch accidental broken mode.
+| | |
+| --- | --- |
+| Example | 7 notes, page size 5 → UI often shows `5 notes` on page 1 |
+| Where | `public/assets/app.js` `refreshNotes()` uses payload length |
+| Depends on | `P1` |
+| Evidence | UI pagination spec; annotation `P2` |
+
+### P3 — “Next” stays clickable on a full final page
+
+| | |
+| --- | --- |
+| Example | Exactly 5 notes, page size 5 → Next enabled → empty page 2 |
+| Where | Same heuristic: `length >= pageSize` ⇒ assume another page |
+| Depends on | `P1` |
+| Evidence | UI pagination “empty next page” spec; annotation `P3` |
+
+---
+
+## Accessibility (axe smoke)
+
+Scanned auth + notes surfaces with `@axe-core/playwright` (WCAG 2 A/AA tags).
+Serious/critical rules **outside** this allowlist still fail the suite.
+
+### A1 — Primary button contrast below WCAG AA
+
+| | |
+| --- | --- |
+| Rule | axe `color-contrast` (serious) |
+| Detail | `#fffaf6` on `#b8743f` ≈ 3.61:1 (need ≥ 4.5:1) |
+| Evidence | `tests/ui/a11y.spec.ts`; annotation `A1` |
+
+### A2 — Document language not declared
+
+| | |
+| --- | --- |
+| Rule | axe `html-has-lang` (serious) |
+| Detail | `<html>` has no `lang` |
+| Evidence | `tests/ui/a11y.spec.ts`; annotation `A2` |
+
+---
+
+## Environment note (not a product defect)
+
+`APP_MODE=broken` intentionally mutates statuses, payload keys, confirm links, and note content.
+This suite only targets **healthy**. Zod contracts + exact UI waits are meant to fail loudly if broken mode is left on by mistake.

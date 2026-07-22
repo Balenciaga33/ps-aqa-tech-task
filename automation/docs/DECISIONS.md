@@ -32,4 +32,4 @@ Status codes alone miss silent contract drift (renamed fields, wrong types). Zod
 
 ## Why axe a11y smoke (with known-issue allowlist)
 
-A short axe run on auth + notes surfaces accessibility debt without owning a full WCAG audit. Serious/critical rules outside the FINDINGS allowlist still fail; known product issues (#7 color-contrast, #8 missing `lang`) are annotated so reviewers see them and CI stays green.
+A short axe run on auth + notes surfaces accessibility debt without owning a full WCAG audit. Serious/critical rules outside the FINDINGS allowlist still fail; known product issues (`A1` color-contrast, `A2` missing `lang`) are annotated so reviewers see them and CI stays green.

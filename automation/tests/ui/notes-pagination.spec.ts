@@ -8,8 +8,8 @@ test.describe('UI Notes pagination', () => {
     notesClient,
     registeredUser,
   }) => {
-    annotateKnownIssue(5, 'UI counter shows page slice instead of real total');
-    annotateKnownIssue(6, 'Next can stay enabled on a full last page');
+    annotateKnownIssue('P2', 'UI counter shows page slice instead of real total');
+    annotateKnownIssue('P3', 'Next can stay enabled on a full last page');
 
     const prefix = `page-${Date.now()}`;
     for (let i = 0; i < 7; i += 1) {
@@ -43,7 +43,7 @@ test.describe('UI Notes pagination', () => {
     notesClient,
     registeredUser,
   }) => {
-    annotateKnownIssue(6, 'Next enabled on full last page leads to empty page');
+    annotateKnownIssue('P3', 'Next enabled on full last page leads to empty page');
 
     const prefix = `fullpage-${Date.now()}`;
     for (let i = 0; i < 5; i += 1) {

@@ -33,7 +33,7 @@ Product discrepancies: [FINDINGS.md](FINDINGS.md).
 | Profile | Email + id after sign-in | P1 |
 | Notes CRUD | Create / edit / delete (+ cancel edit/delete) | P0 / P1 |
 | Notes list | Search; empty/clear search; pagination known-issues; sort | P1 |
-| Accessibility | axe smoke on auth + notes (known contrast/`lang` issues allowlisted) | P1 |
+| Accessibility | axe smoke on auth + notes (known `A1`/`A2` allowlisted) | P1 |
 
 ## Engineering decisions (vs typical suites)
 
