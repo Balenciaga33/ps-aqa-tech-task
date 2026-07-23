@@ -6,8 +6,14 @@ on:
       - main
   pull_request:
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  build-migrate-test:
+  # Fast backend smoke. Gates expensive E2E so we fail early.
+  phpunit:
+    name: build → migrate → unit
     runs-on: ubuntu-latest
 
     services:
@@ -35,13 +41,13 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
-      - name: Build Dockerfile (php-cli target)
-        uses: docker/build-push-action@v6
+      - name: Build (php-cli image)
+        uses: docker/build-push-action@v7
         env:
           DOCKER_BUILD_RECORD_UPLOAD: false
         with:
@@ -49,24 +55,10 @@ jobs:
           target: php-cli
           tags: qa-task-php-cli:ci
           load: true
+          cache-from: type=gha,scope=php-cli
+          cache-to: type=gha,mode=max,scope=php-cli
 
-      - name: Build Dockerfile (php-web target)
-        uses: docker/build-push-action@v6
-        env:
-          DOCKER_BUILD_RECORD_UPLOAD: false
-        with:
-          context: .
-          target: php-web
-          build-args: |
-            LOCAL_IP=127.0.0.1
-          tags: qa-task-php-web:ci
-          load: true
-
-#      - name: Run Composer In Docker
-#        run: |
-#          make install
-
-      - name: Run Migrations In Docker
+      - name: Migrate
         run: |
           docker run --rm \
             -u root \
@@ -78,7 +70,7 @@ jobs:
             qa-task-php-cli:ci \
             php bin/console doctrine:migrations:migrate --no-interaction
 
-      - name: Run Tests In Docker
+      - name: Unit (PHPUnit)
         run: |
           docker run --rm \
             -u root \
@@ -89,3 +81,109 @@ jobs:
             -e APP_SECRET='$ecretf0rt3st' \
             qa-task-php-cli:ci \
             vendor/bin/phpunit -c phpunit.dist.xml
+
+  # One shared App + MailHog stack: API first, then UI (fail-fast inside the job).
+  playwright:
+    name: e2e (stack → api → ui)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: phpunit
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      # compose bind-mounts the workspace over the image, so vendor from the image is hidden
+      - name: Install PHP dependencies
+        run: |
+          docker run --rm \
+            -v "$PWD:/app" \
+            -w /app \
+            composer:2.9.3 \
+            install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Stack (compose up + migrate)
+        run: |
+          LOCAL_IP=127.0.0.1 docker compose up -d --build
+
+          for i in $(seq 1 60); do
+            if docker compose exec -T mysql mysqladmin ping -h 127.0.0.1 -uroot --silent; then
+              break
+            fi
+            sleep 2
+          done
+
+          docker compose run --rm php-cli /bin/sh -c "\
+            php bin/console --no-interaction doctrine:migrations:migrate; \
+            php bin/console --env=test --no-interaction doctrine:migrations:migrate"
+
+      - name: Wait for App and MailHog
+        run: |
+          for i in $(seq 1 60); do
+            if curl -fsS http://localhost:4444/ >/dev/null \
+              && curl -fsS http://localhost:4444/api/doc.json >/dev/null \
+              && curl -fsS http://localhost:8025/ >/dev/null; then
+              echo "Services are ready"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "Services did not become ready in time"
+          docker compose ps
+          docker compose logs --tail=200
+          exit 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: automation/package-lock.json
+
+      - name: Install Playwright dependencies
+        working-directory: automation
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: API tests
+        working-directory: automation
+        env:
+          CI: true
+          BASE_URL: http://localhost:4444
+          API_URL: http://localhost:4444
+          MAILHOG_URL: http://localhost:8025
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            npm run test:p0:api
+          else
+            npm run test:api
+          fi
+
+      - name: UI tests
+        working-directory: automation
+        env:
+          CI: true
+          BASE_URL: http://localhost:4444
+          API_URL: http://localhost:4444
+          MAILHOG_URL: http://localhost:8025
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            npm run test:p0:ui
+          else
+            npm run test:ui
+          fi
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report
+          path: |
+            automation/playwright-report
+            automation/test-results
+          retention-days: 14
+
+      - name: Stop application stack
+        if: always()
+        run: docker compose down -v

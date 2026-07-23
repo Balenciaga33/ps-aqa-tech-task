@@ -1,11 +1,12 @@
 # this targets aren't file-dependent so always out-of date
-.PHONY: clean composer cs-check cs-fix destroy down install migrate shell stan test up
+.PHONY: clean composer cs-check cs-fix destroy down install migrate shell stan test test-api test-e2e test-p0 test-ui up
 
 # If you're changing these versions, don't forget to update Dockerfile
 COMPOSER_VER := 2.9.3
 
 # just a shortcut for long docker command string
-DOCKER := docker run --rm -it -v $(shell pwd):/app -w /app
+DOCKER := docker run --rm -v $(shell pwd):/app -w /app
+DOCKER_TTY := docker run --rm -it -v $(shell pwd):/app -w /app
 
 LOCAL_IP := $$(ipconfig getifaddr en0)
 
@@ -14,7 +15,7 @@ clean:
 	rm -rf var/cache/*
 
 composer:
-	${DOCKER} composer:${COMPOSER_VER} bash
+	${DOCKER_TTY} composer:${COMPOSER_VER} bash
 
 cs-check:
 	docker compose run --rm -e PHP_CS_FIXER_IGNORE_ENV=1 php-cli vendor/bin/php-cs-fixer fix --dry-run --diff
@@ -45,6 +46,18 @@ stan:
 
 test:
 	docker compose run --rm -e APP_ENV=test php-cli bin/phpunit
+
+test-e2e:
+	cd automation && npm test
+
+test-api:
+	cd automation && npm run test:api
+
+test-ui:
+	cd automation && npm run test:ui
+
+test-p0:
+	cd automation && npm run test:p0
 
 up:
 	LOCAL_IP=${LOCAL_IP} docker compose up -d

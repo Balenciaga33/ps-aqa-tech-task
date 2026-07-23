@@ -63,4 +63,18 @@ Recommended order for first check:
 This diagram can help you understand the main entities and interactions before test design:
 - [Service Diagram](docs/service-diagram.md)
 
+## Automated tests
+
+[![CI](https://github.com/Balenciaga33/ps-aqa-tech-task/actions/workflows/ci.yml/badge.svg)](https://github.com/Balenciaga33/ps-aqa-tech-task/actions/workflows/ci.yml)
+
+API + UI automation lives in [`automation/`](automation/) (Playwright + TypeScript).
+
+- How to install/run: [`automation/README.md`](automation/README.md)
+- Priorities & scope: [`automation/docs/TEST-STRATEGY.md`](automation/docs/TEST-STRATEGY.md)
+- Spec vs actual behavior: [`automation/docs/KNOWN-ISSUES.md`](automation/docs/KNOWN-ISSUES.md)
+- Engineering decisions: [`automation/docs/ADR.md`](automation/docs/ADR.md)
+- CI evidence: [Actions runs](https://github.com/Balenciaga33/ps-aqa-tech-task/actions/workflows/ci.yml) (`build → migrate → unit` → `e2e (stack → api → ui)`; P0 on PR, full on `main`)
+
+Suite highlights: domain-split specs, parameterized validation boundaries, Zod + OpenAPI contract smoke, axe a11y with known-issue allowlist.
+
 ## Good luck!

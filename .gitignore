@@ -22,3 +22,11 @@
 
 .idea/
 .phpunit.result.cache
+
+###> playwright automation ###
+/automation/node_modules/
+/automation/playwright-report/
+/automation/test-results/
+/automation/blob-report/
+/automation/.env
+###< playwright automation ###
