@@ -87,6 +87,7 @@ make test       # PHPUnit smoke (product)
 ```
 automation/
   docs/                 # TEST-STRATEGY, KNOWN-ISSUES, ADR
+  img/                  # local run evidence screenshots
   src/
     clients/            # Auth, Notes, MailHog HTTP clients
     fixtures/           # registeredUser, clients, page objects
@@ -147,4 +148,14 @@ GitHub Actions (`.github/workflows/ci.yml`):
 
 Outdated runs on the same branch are cancelled via `concurrency`.
 
-Check the repository **Actions** tab for run status. On failure (or for review), download the `playwright-report` artifact.
+## Evidence
+
+Local run: full suite passed (API + UI) — see screenshot below.
+
+![Local Playwright run](img/local-run.png)
+
+CI: [GitHub Actions — CI workflow](https://github.com/Balenciaga33/ps-aqa-tech-task/actions/workflows/ci.yml) (badge at the top of this README). On failure (or for review), download the `playwright-report` artifact from a run.
+
+## P.S.
+
+I deliberately did **not** inflate the suite to chase “cover everything possible.” The focus is the **engineering** side: clear structure, risk-based priorities (`@p0` / `@p1`), maintainable fixtures and page objects, contracts (Zod + OpenAPI), documented findings with annotations, and a fail-fast CI pipeline that another engineer can run and review quickly.
