@@ -16,7 +16,6 @@ Guidelines for extending the Playwright suite in this repository.
 | `npm run test:api` / `make test-api` | API project only |
 | `npm run test:ui` / `make test-ui` | UI project only |
 | `npm run test:p0` / `make test-p0` | Blocker tests (`@p0`) — same filter as PR CI |
-| `make test` | Product PHPUnit smoke (not Playwright) |
 
 ## How to add a test
 

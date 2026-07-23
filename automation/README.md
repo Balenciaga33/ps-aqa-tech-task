@@ -79,7 +79,6 @@ make test-e2e   # full Playwright suite
 make test-api
 make test-ui
 make test-p0    # @p0 only
-make test       # PHPUnit smoke (product)
 ```
 
 ## Structure
